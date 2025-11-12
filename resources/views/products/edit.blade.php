@@ -1,13 +1,16 @@
-<!-- resources/views/products/edit.blade.php -->
 @extends('layouts.app')
 
 @section('content')
 <div class="container">
     <h1>Edit Product</h1>
 
-    @if($errors->any())
+    @if ($errors->any())
         <div class="alert alert-danger">
-            <ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -17,7 +20,7 @@
 
         <div class="mb-3">
             <label>Name</label>
-            <input type="text" name="name" class="form-control" value="{{ old('name', $product->name) }}">
+            <input type="text" name="name" class="form-control" value="{{ old('name', $product->name) }}" required>
         </div>
 
         <div class="mb-3">
@@ -27,7 +30,7 @@
 
         <div class="mb-3">
             <label>Price</label>
-            <input type="number" step="0.01" name="price" class="form-control" value="{{ old('price', $product->price) }}">
+            <input type="number" step="0.01" name="price" class="form-control" value="{{ old('price', $product->price) }}" required>
         </div>
 
         <div class="mb-3">
@@ -40,9 +43,9 @@
             <select name="category_id" class="form-control">
                 <option value="">Select Category</option>
                 @foreach($categories as $category)
-                    <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
-                        {{ $category->name }}
-                    </option>
+                <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -51,16 +54,17 @@
             <label>Image</label>
             <input type="file" name="image" class="form-control">
             @if($product->image)
-                <img src="{{ asset('storage/' . $product->image) }}" width="100" class="mt-2">
+                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" width="80" class="mt-2">
             @endif
         </div>
 
         <div class="mb-3 form-check">
-            <input type="checkbox" name="is_active" class="form-check-input" value="1" {{ $product->is_active ? 'checked' : '' }}>
+            <input type="checkbox" name="is_active" class="form-check-input" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
             <label class="form-check-label">Active</label>
         </div>
 
-        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="submit" class="btn btn-success">Update Product</button>
+        <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 @endsection

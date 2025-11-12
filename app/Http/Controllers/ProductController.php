@@ -9,64 +9,77 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    // Show all products
     public function index()
     {
         $products = Product::with('category')->get();
         return view('products.index', compact('products'));
     }
 
+    // Show create form
     public function create()
     {
         $categories = Category::all();
         return view('products.create', compact('categories'));
     }
 
+    // Store product
     public function store(Request $request)
     {
-        $data = $request->validate([
+        // Validate input
+        $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'nullable|boolean',
         ]);
 
+        // Collect data
+        $data = $request->only(['name', 'description', 'price', 'stock', 'category_id', 'is_active']);
+
+        // Set default values if missing
+        $data['stock'] = $data['stock'] ?? 0;
+        $data['is_active'] = $data['is_active'] ?? true;
+
+        // Handle image upload
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $data['is_active'] = $request->has('is_active');
-
+        // Create product
         Product::create($data);
 
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+        return redirect()->route('products.index')->with('success', 'Product added successfully!');
     }
 
-    public function show(Product $product)
-    {
-        return view('products.show', compact('product'));
-    }
-
+    // Show edit form
     public function edit(Product $product)
     {
         $categories = Category::all();
         return view('products.edit', compact('product', 'categories'));
     }
 
+    // Update product
     public function update(Request $request, Product $product)
     {
-        $data = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'nullable|boolean',
         ]);
 
+        $data = $request->only(['name', 'description', 'price', 'stock', 'category_id', 'is_active']);
+        $data['stock'] = $data['stock'] ?? 0;
+        $data['is_active'] = $data['is_active'] ?? true;
+
+        // Handle image update
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($product->image) {
@@ -75,19 +88,20 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $data['is_active'] = $request->has('is_active');
-
         $product->update($data);
 
-        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+        return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
 
+    // Delete product
     public function destroy(Product $product)
     {
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
+
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }
 }
