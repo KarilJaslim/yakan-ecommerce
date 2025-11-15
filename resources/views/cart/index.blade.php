@@ -38,11 +38,31 @@
             </tbody>
         </table>
 
-        <div class="mt-4 flex justify-between items-center">
-            <p class="text-xl font-bold">Total: ₱{{ number_format($total, 2) }}</p>
+        <div class="mt-4">
             <form action="{{ route('cart.checkout') }}" method="POST">
                 @csrf
-                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Checkout</button>
+
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Shipping Address:</label>
+                    <input type="text" name="shipping_address" required
+                           class="w-full border px-2 py-1 rounded"
+                           placeholder="Enter your shipping address">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Payment Method:</label>
+                    <select name="payment_method" required class="w-full border px-2 py-1 rounded">
+                        <option value="gcash">GCash</option>
+                        <option value="credit_card">Credit/Debit Card</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <p class="text-xl font-bold">Total: ₱{{ number_format($total, 2) }}</p>
+                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                        Place Order
+                    </button>
+                </div>
             </form>
         </div>
     @else

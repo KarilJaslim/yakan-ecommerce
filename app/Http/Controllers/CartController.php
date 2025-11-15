@@ -51,8 +51,8 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Product removed from cart!');
     }
 
-    // Checkout
-    public function checkout()
+    // Checkout - updated version
+    public function checkout(Request $request)
     {
         $cart = session()->get('cart', []);
 
@@ -60,17 +60,25 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Cart is empty!');
         }
 
+        // Get logged-in user or fallback to first user
+        $user = Auth::user() ?? \App\Models\User::first();
+
         $total = 0;
         foreach($cart as $item) {
             $total += $item['price'] * $item['quantity'];
         }
 
+        // Create order
         $order = Order::create([
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
             'total' => $total,
             'status' => 'pending',
+            'payment_method' => 'gcash', // default for now
+            'payment_status' => 'pending',
+            'shipping_address' => 'Default address', // can be changed later
         ]);
 
+        // Create order items and reduce stock
         foreach($cart as $productId => $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -78,6 +86,12 @@ class CartController extends Controller
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
             ]);
+
+            $product = Product::find($productId);
+            if($product){
+                $product->stock -= $item['quantity'];
+                $product->save();
+            }
         }
 
         // Clear cart
