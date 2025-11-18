@@ -5,37 +5,42 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Product;
 
 class OrderController extends Controller
 {
     // Show all orders
-    public function index()
+    public function index(Request $request)
     {
-        // Get all orders with related user and product items
-        $orders = Order::with('user', 'items.product')
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+        $query = Order::with('user', 'items.product')->orderByDesc('created_at');
 
-        // Get top 5 products by quantity sold
-        $topProducts = Product::withSum('orderItems', 'quantity')
-                        ->orderByDesc('order_items_sum_quantity')
-                        ->take(5)
-                        ->get();
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
-        return view('admin.orders.index', compact('orders', 'topProducts'));
+        if ($request->filled('user')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->user . '%');
+            });
+        }
+
+        $orders = $query->get();
+
+        if ($request->ajax()) {
+            return view('admin.orders.partials.orders-rows', compact('orders'))->render();
+        }
+
+        return view('admin.orders.index', compact('orders'));
     }
 
-    // Show order details
+    // Show single order
     public function show(Order $order)
     {
         $order->load('user', 'items.product');
         return view('admin.orders.show', compact('order'));
     }
 
-    // Update order status
-    public function updateStatus(Request $request, Order $order)
+    // Quick update order status
+    public function quickUpdateStatus(Request $request, Order $order)
     {
         $request->validate([
             'status' => 'required|in:pending,processing,completed,cancelled',
@@ -44,6 +49,32 @@ class OrderController extends Controller
         $order->status = $request->status;
         $order->save();
 
-        return redirect()->route('admin.orders.index')->with('success', 'Order status updated!');
+        return redirect()->back()->with('success', 'Order status updated!');
+    }
+
+    // Refund order
+    public function refund(Request $request, Order $order)
+    {
+        if ($order->status !== 'completed') {
+            return redirect()->back()->with('error', 'Only completed orders can be refunded.');
+        }
+
+        $order->status = 'refunded';
+        $order->payment_status = 'refunded';
+        $order->save();
+
+        foreach ($order->items as $item) {
+            $product = $item->product;
+            $product->stock += $item->quantity;
+            $product->save();
+        }
+
+        return redirect()->back()->with('success', 'Order refunded successfully.');
+    }
+
+    // Optional: Place order (depends on your cart logic)
+    public function placeOrder(Request $request)
+    {
+        // Implement your order placing logic here
     }
 }

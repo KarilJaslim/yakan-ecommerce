@@ -10,60 +10,51 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    // Show admin dashboard
     public function index()
     {
-        // Total orders
         $totalOrders = Order::count();
 
-        // Orders by status
-        $ordersByStatus = Order::select('status', DB::raw('count(*) as total'))
-                               ->groupBy('status')
-                               ->pluck('total','status');
+        $ordersByStatus = Order::select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
 
-        // Top-selling products using withSum
         $topProducts = Product::withSum('orderItems', 'quantity')
-                              ->orderByDesc('order_items_sum_quantity')
-                              ->take(5)
-                              ->get();
+            ->orderByDesc('order_items_sum_quantity')
+            ->take(5)
+            ->get();
 
-        // Get recent orders for the table
         $orders = Order::with('items.product', 'user')
-                       ->orderByDesc('created_at')
-                       ->take(10) // adjust or remove take() to show all orders
-                       ->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('admin.orders.dashboard', compact('totalOrders', 'ordersByStatus', 'topProducts', 'orders'));
+        return view('admin.dashboard', [
+            'totalOrders' => $totalOrders,
+            'ordersByStatus' => $ordersByStatus,
+            'topProducts' => $topProducts,
+            'orders' => $orders,
+            'pendingOrders' => $ordersByStatus['pending'] ?? 0,
+            'completedOrders' => $ordersByStatus['completed'] ?? 0,
+        ]);
     }
 
-    // Live dashboard metrics (AJAX endpoint)
     public function metrics()
     {
-        // Total orders
         $totalOrders = Order::count();
+        $ordersByStatus = Order::select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
 
-        // Orders by status
-        $ordersByStatus = Order::select('status', DB::raw('count(*) as total'))
-                               ->groupBy('status')
-                               ->pluck('total','status');
-
-        // Top-selling products
         $topProducts = Product::withSum('orderItems', 'quantity')
-                              ->orderByDesc('order_items_sum_quantity')
-                              ->take(5)
-                              ->get();
-
-        // Recent orders for AJAX
-        $orders = Order::with('items.product', 'user')
-                       ->orderByDesc('created_at')
-                       ->take(10)
-                       ->get();
+            ->orderByDesc('order_items_sum_quantity')
+            ->take(5)
+            ->get();
 
         return response()->json([
             'totalOrders' => $totalOrders,
             'ordersByStatus' => $ordersByStatus,
             'topProducts' => $topProducts,
-            'orders' => $orders
         ]);
     }
 }
