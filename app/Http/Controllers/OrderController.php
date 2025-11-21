@@ -10,14 +10,18 @@ use App\Models\User;
 
 class OrderController extends Controller
 {
-    // Show all orders (Admin)
+    /**
+     * Show all orders (Admin)
+     */
     public function index()
     {
         $orders = Order::with('items.product', 'user')->get();
         return view('admin.orders.index', compact('orders')); // Pass orders to Blade
     }
 
-    // Update order status (Admin)
+    /**
+     * Update order status (Admin)
+     */
     public function updateStatus(Request $request, $id)
     {
         $order = Order::findOrFail($id);
@@ -39,11 +43,12 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order updated successfully']);
     }
 
-    // Place order (User or testing fallback)
+    /**
+     * Place order (User)
+     */
     public function placeOrder(Request $request)
     {
-        // Use first user in DB (no auth required)
-        $user = User::first();
+        $user = auth()->user() ?? User::first();
 
         if (!$user) {
             return response()->json(['error' => 'No user found'], 400);
@@ -52,11 +57,11 @@ class OrderController extends Controller
         // Create the order
         $order = Order::create([
             'user_id' => $user->id,
-            'total' => $request->total_amount,
+            'total_amount' => $request->total_amount,
             'payment_method' => $request->payment_method,
             'payment_status' => 'pending',
             'status' => 'pending',
-            'shipping_address' => $request->shipping_address
+            'shipping_address' => $request->shipping_address ?? null,
         ]);
 
         // Add order items
@@ -68,15 +73,16 @@ class OrderController extends Controller
                 'price' => $item['price'],
             ]);
         }
-        
 
-        return response()->json(['message' => 'Order placed successfully']);
+        return response()->json(['message' => 'Order placed successfully', 'order_id' => $order->id]);
     }
 
+    /**
+     * Show a specific order (Admin/User)
+     */
     public function show($id)
-{
-    $order = Order::with('items.product', 'user')->findOrFail($id);
-    return view('admin.orders.show', compact('order'));
-}
-
+    {
+        $order = Order::with('items.product', 'user')->findOrFail($id);
+        return view('admin.orders.show', compact('order'));
+    }
 }

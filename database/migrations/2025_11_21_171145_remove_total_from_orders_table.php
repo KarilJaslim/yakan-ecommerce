@@ -11,10 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user');
-        });
-        
+        // Nothing to do here because 'total' column was already renamed
     }
 
     /**
@@ -22,8 +19,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        // Optionally, you could add the 'total' column back if needed
+        // Schema::table('orders', function (Blueprint $table) {
+        //     $table->decimal('total', 10, 2)->nullable();
+        // });
     }
 };

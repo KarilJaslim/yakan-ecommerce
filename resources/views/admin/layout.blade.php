@@ -12,7 +12,7 @@
         <nav class="flex flex-col space-y-2">
             <a href="{{ route('admin.dashboard') }}" class="hover:bg-red-700 p-2 rounded">Dashboard</a>
             <a href="{{ route('admin.orders.index') }}" class="hover:bg-red-700 p-2 rounded">Orders</a>
-            <a href="#" class="hover:bg-red-700 p-2 rounded">Products</a>
+            <a href="{{ route('admin.products.index') }}" class="hover:bg-red-700 p-2 rounded">Products</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="mt-4 hover:bg-red-700 p-2 rounded w-full text-left">Logout</button>

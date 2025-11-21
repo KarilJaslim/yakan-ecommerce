@@ -2,22 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'order_id',   // <--- add this
+        'product_id',
+        'quantity',
+        'price',
+    ];
 
-    // Relationship to Product
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
-
-    // Relationship to Order
+    // Optional: define relationship to Order
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

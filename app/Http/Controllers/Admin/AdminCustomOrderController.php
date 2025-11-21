@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CustomOrder;
 
-class CustomOrderController extends Controller
+class AdminCustomOrderController extends Controller
 {
     /**
      * List all custom orders (admin)
      */
     public function index(Request $request)
     {
-        $query = CustomOrder::with('user');
+        $query = CustomOrder::with('user', 'product');
 
         // Optional filter by status
         if ($request->filled('status')) {
@@ -30,7 +30,7 @@ class CustomOrderController extends Controller
      */
     public function show(CustomOrder $order)
     {
-        $order->load('user');
+        $order->load('user', 'product');
         return view('admin.custom_orders.show', compact('order'));
     }
 
@@ -46,6 +46,6 @@ class CustomOrderController extends Controller
         $order->status = $request->status;
         $order->save();
 
-        return redirect()->back()->with('success', 'Custom order status updated!');
+        return redirect()->back()->with('success', 'Custom order status updated successfully!');
     }
 }

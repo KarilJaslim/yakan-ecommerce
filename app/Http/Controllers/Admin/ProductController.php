@@ -40,7 +40,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created product.
      */
     public function store(Request $request)
     {
@@ -48,6 +48,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
+            'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:active,inactive',
@@ -63,6 +64,7 @@ class ProductController extends Controller
         Product::create([
             'name' => $request->name,
             'price' => $request->price,
+            'stock' => $request->stock,
             'description' => $request->description,
             'image' => $imagePath,
             'status' => $request->status,
@@ -72,7 +74,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified product.
      */
     public function show(string $id)
     {
@@ -81,7 +83,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified product.
      */
     public function edit(string $id)
     {
@@ -90,7 +92,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified product.
      */
     public function update(Request $request, string $id)
     {
@@ -100,6 +102,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
+            'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:active,inactive',
@@ -118,6 +121,7 @@ class ProductController extends Controller
         $product->update([
             'name' => $request->name,
             'price' => $request->price,
+            'stock' => $request->stock,
             'description' => $request->description,
             'status' => $request->status,
             'image' => $product->image, // ensure updated image is saved
@@ -127,7 +131,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified product.
      */
     public function destroy(string $id)
     {

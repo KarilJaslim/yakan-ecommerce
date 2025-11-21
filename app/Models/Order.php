@@ -9,13 +9,23 @@ class Order extends Model
 {
     use HasFactory;
 
-    // Define relationship to order items
+    // Allow mass assignment for these fields
+    protected $fillable = [
+        'user_id',
+        'total_amount',
+        'payment_method',
+        'status',
+    ];
+    
+    
+
+    // Relationship to order items
     public function items()
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    // If you want the user relationship
+    // Relationship to user
     public function user()
     {
         return $this->belongsTo(User::class);

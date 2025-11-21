@@ -4,20 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\CustomOrder;
+use App\Models\Product;
+use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 
-/**
- * Controller for managing user custom orders
- */
 class CustomOrderController extends Controller
 {
     /**
-     * Show all custom orders for the logged-in user
-     *
-     * @return \Illuminate\View\View
+     * List custom orders for the logged-in user
      */
     public function userIndex()
     {
-        $orders = CustomOrder::where('user_id', auth()->id())
+        $orders = CustomOrder::with('product')
+            ->where('user_id', Auth::id())
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -25,63 +24,53 @@ class CustomOrderController extends Controller
     }
 
     /**
-     * Show the form to create a new custom order
-     *
-     * @return \Illuminate\View\View
+     * Show form to create a new custom order
      */
     public function create()
     {
-        return view('custom_orders.create');
+        $categories = Category::with('products')->get(); // get categories with products
+        return view('custom_orders.create', compact('categories'));
     }
 
     /**
      * Store a new custom order
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'specifications' => 'nullable|string',
-            'design_upload' => 'nullable|file|mimes:jpg,png,pdf',
+            'specifications' => 'nullable|string|max:1000',
+            'design_upload' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $order = new CustomOrder([
-            'user_id' => auth()->id(),
-            'product_id' => $request->product_id,
-            'specifications' => $request->specifications,
-            'quantity' => $request->quantity,
-            'status' => 'pending',
-            'payment_status' => 'unpaid',
-        ]);
+        $order = new CustomOrder();
+        $order->user_id = Auth::id();
+        $order->product_id = $request->product_id;
+        $order->specifications = $request->specifications;
+        $order->quantity = $request->quantity;
+        $order->status = 'pending';
+        $order->payment_status = 'unpaid';
 
         if ($request->hasFile('design_upload')) {
-            $order->design_upload = $request->file('design_upload')->store('designs', 'public');
+            $order->design_upload = $request->file('design_upload')->store('custom_designs', 'public');
         }
 
         $order->save();
 
-        return redirect()->route('custom_orders.index')->with('success', 'Custom order submitted!');
+        return redirect()->route('custom_orders.index')->with('success', 'Custom order created successfully!');
     }
 
     /**
-     * Show a single custom order for the logged-in user
-     *
-     * Uses route model binding
-     *
-     * @param \App\Models\CustomOrder $order
-     * @return \Illuminate\View\View
+     * Show a single custom order
      */
     public function show(CustomOrder $order)
     {
-        // Ensure the user owns this order
-        if ($order->user_id !== auth()->id()) {
+        if ($order->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 
+        $order->load('product');
         return view('custom_orders.show', compact('order'));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Cart;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -10,93 +11,142 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    // Show cart
-    public function index()
+    /**
+     * Add product to cart
+     */
+    public function add(Request $request, Product $product)
     {
-        $cart = session()->get('cart', []);
-        return view('cart.index', compact('cart'));
-    }
+        $userId = Auth::id();
 
-    // Add product to cart
-    public function add(Product $product)
-    {
-        $cart = session()->get('cart', []);
+        // Check if item already in cart
+        $cartItem = Cart::where('user_id', $userId)
+                        ->where('product_id', $product->id)
+                        ->first();
 
-        if(isset($cart[$product->id])) {
-            $cart[$product->id]['quantity']++;
+        if ($cartItem) {
+            // Increase quantity
+            $cartItem->quantity += $request->quantity ?? 1;
+            $cartItem->save();
         } else {
-            $cart[$product->id] = [
-                'name' => $product->name,
-                'price' => $product->price,
-                'quantity' => 1,
-                'image' => $product->image
-            ];
+            // Create new cart row
+            Cart::create([
+                'user_id'    => $userId,
+                'product_id' => $product->id,
+                'quantity'   => $request->quantity ?? 1,
+            ]);
         }
-
-        session()->put('cart', $cart);
 
         return redirect()->back()->with('success', 'Product added to cart!');
     }
 
-    // Remove product from cart
-    public function remove(Product $product)
+    /**
+     * Show the cart
+     */
+    public function index()
     {
-        $cart = session()->get('cart', []);
+        $cartItems = Cart::with('product')
+                        ->where('user_id', Auth::id())
+                        ->get();
 
-        if(isset($cart[$product->id])) {
-            unset($cart[$product->id]);
-            session()->put('cart', $cart);
-        }
-
-        return redirect()->back()->with('success', 'Product removed from cart!');
+        return view('cart.index', compact('cartItems'));
     }
 
-    // Checkout - updated version
-    public function checkout(Request $request)
+    /**
+     * Remove item from cart
+     */
+    public function remove($id)
     {
-        $cart = session()->get('cart', []);
+        $cartItem = Cart::where('id', $id)
+                        ->where('user_id', Auth::id())
+                        ->first();
 
-        if(empty($cart)) {
-            return redirect()->back()->with('error', 'Cart is empty!');
+        if ($cartItem) {
+            $cartItem->delete();
         }
 
-        // Get logged-in user or fallback to first user
-        $user = Auth::user() ?? \App\Models\User::first();
+        return redirect()->back()->with('success', 'Item removed from cart');
+    }
 
-        $total = 0;
-        foreach($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
+    /**
+     * Update cart quantity
+     */
+    public function update(Request $request, $id)
+    {
+        $cartItem = Cart::where('id', $id)
+                        ->where('user_id', Auth::id())
+                        ->first();
+
+        if ($cartItem) {
+            $cartItem->quantity = $request->quantity;
+            $cartItem->save();
         }
 
-        // Create order
+        return redirect()->back()->with('success', 'Cart updated');
+    }
+
+    /**
+     * Show checkout page (Mode of Payment)
+     */
+    public function checkout()
+    {
+        $cartItems = Cart::with('product')
+                        ->where('user_id', Auth::id())
+                        ->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
+
+        // Calculate total
+        $total = $cartItems->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+
+        return view('cart.checkout', compact('cartItems', 'total'));
+    }
+
+    /**
+     * Checkout Processing (Place Order)
+     */
+    public function processCheckout(Request $request)
+    {
+        $userId = Auth::id();
+        $paymentMethod = $request->payment_method;
+
+        $cartItems = Cart::with('product')->where('user_id', $userId)->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Your cart is empty.');
+        }
+
+        // Calculate total
+        $totalAmount = $cartItems->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+
+        // Create main order
         $order = Order::create([
-            'user_id' => $user->id,
-            'total' => $total,
-            'status' => 'pending',
-            'payment_method' => 'gcash', // default for now
-            'payment_status' => 'pending',
-            'shipping_address' => 'Default address', // can be changed later
+            'user_id'        => $userId,
+            'total_amount'   => $totalAmount,
+            'payment_method' => $paymentMethod,
+            'status'         => 'pending',
         ]);
 
-        // Create order items and reduce stock
-        foreach($cart as $productId => $item) {
+        // Add order items
+        foreach ($cartItems as $item) {
             OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $productId,
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
+                'order_id'   => $order->id,
+                'product_id' => $item->product_id,
+                'quantity'   => $item->quantity,
+                'price'      => $item->product->price,
             ]);
-
-            $product = Product::find($productId);
-            if($product){
-                $product->stock -= $item['quantity'];
-                $product->save();
-            }
         }
 
         // Clear cart
-        session()->forget('cart');
+        Cart::where('user_id', $userId)->delete();
 
-        return redirect()->route('products.index')->with('success', 'Order placed successfully!');
+        // Redirect to user order details
+        return redirect()->route('orders.show', $order->id)
+                         ->with('success', 'Order placed successfully.');
     }
 }

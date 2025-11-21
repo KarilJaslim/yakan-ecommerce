@@ -1,6 +1,7 @@
 @extends('layouts.admin')
-
+@section('title', 'Product Details')
 @section('content')
+
 <div class="container mx-auto p-4">
     <h1 class="text-3xl font-bold mb-6">Product Details</h1>
 
@@ -9,6 +10,7 @@
         <div class="flex-1 space-y-3">
             <p><strong>ID:</strong> {{ $product->id }}</p>
             <p><strong>Name:</strong> {{ $product->name }}</p>
+            <p><strong>Category:</strong> {{ $product->category?->name ?? 'No Category' }}</p>
             <p><strong>Price:</strong> ${{ number_format($product->price, 2) }}</p>
             <p>
                 <strong>Status:</strong>
@@ -16,6 +18,7 @@
                     {{ ucfirst($product->status) }}
                 </span>
             </p>
+            <p><strong>Stock:</strong> {{ $product->stock }}</p>
             <p><strong>Description:</strong></p>
             <p class="border p-2 rounded bg-gray-50">{{ $product->description ?? 'No description provided.' }}</p>
         </div>
@@ -34,4 +37,5 @@
         <a href="{{ route('admin.products.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Back to List</a>
     </div>
 </div>
+
 @endsection

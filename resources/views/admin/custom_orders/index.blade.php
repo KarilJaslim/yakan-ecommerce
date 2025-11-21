@@ -1,82 +1,44 @@
-@extends('layouts.admin') {{-- Only extend admin layout for admin view --}}
+@extends('layouts.app')
+
 @section('content')
 <div class="max-w-6xl mx-auto p-6">
 
-    {{-- Header --}}
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Custom Orders</h1>
-        <a href="{{ route('custom_orders.create') }}"
-           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition">
-            + Create Custom Order
-        </a>
-    </div>
+    <h1 class="text-3xl font-bold mb-6">📦 My Custom Orders</h1>
 
-    {{-- Success Message --}}
     @if(session('success'))
-        <div class="bg-green-100 border border-green-300 text-green-800 p-3 rounded mb-4">
+        <div class="bg-green-100 text-green-700 p-3 mb-4 rounded">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Orders Grid --}}
-    @if($orders->count() > 0)
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
+    @if($orders->count() == 0)
+        <p class="text-gray-600">You have no custom orders yet.</p>
+        <a href="{{ route('custom_orders.create') }}" class="text-red-600 hover:underline mt-2 inline-block">Create your first order</a>
+    @else
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             @foreach($orders as $order)
-                <a href="{{ route('admin.custom_orders.show', $order->id) }}" {{-- Fixed admin route --}}
-                   class="block border rounded-lg shadow-sm p-4 bg-white hover:shadow-lg transition duration-200">
+                <div class="bg-white shadow rounded-lg p-4 hover:scale-105 transform transition">
+                    <img src="{{ asset('storage/' . $order->product->image) }}" 
+                         class="w-full h-48 object-cover rounded-md">
 
-                    {{-- Image --}}
-                    @if ($order->design_upload)
-                        <img src="{{ asset('storage/' . $order->design_upload) }}"
-                             class="w-full h-48 object-cover rounded-lg mb-4">
-                    @else
-                        <div class="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
-                            <span class="text-gray-500">No Design Uploaded</span>
-                        </div>
-                    @endif
+                    <h2 class="text-xl font-semibold mt-3">{{ $order->product->name }}</h2>
+                    <p class="text-gray-600 text-sm">{{ Str::limit($order->product->description, 60) }}</p>
 
-                    {{-- Order Info --}}
-                    <h2 class="text-xl font-semibold mb-2">Order #{{ $order->id }}</h2>
-                    <p class="text-gray-700 mb-2">
-                        <strong>Specifications:</strong><br>
-                        {{ $order->specifications }}
-                    </p>
-                    <p class="text-gray-700 mb-2">
-                        <strong>Quantity:</strong> {{ $order->quantity }}
-                    </p>
+                    <p class="text-gray-700 mt-2">Quantity: {{ $order->quantity }}</p>
+                    <p class="text-gray-700">Status: <span class="font-bold">{{ ucfirst($order->status) }}</span></p>
+                    <p class="text-gray-700">Payment: <span class="font-bold">{{ ucfirst($order->payment_status) }}</span></p>
 
-                    {{-- Status Badge --}}
-                    @php
-                        $statusColors = [
-                            'pending' => 'bg-yellow-500',
-                            'in_progress' => 'bg-blue-500',
-                            'completed' => 'bg-green-600',
-                            'cancelled' => 'bg-red-600'
-                        ];
-                        $color = $statusColors[$order->status] ?? 'bg-gray-500';
-                    @endphp
-                    <span class="px-3 py-1 text-white rounded inline-block mt-2 {{ $color }}">
-                        {{ ucfirst(str_replace('_', ' ', $order->status)) }}
-                    </span>
-
-                </a>
+                    <a href="{{ route('custom_orders.show', $order->id) }}"
+                       class="block mt-3 bg-red-600 text-white text-center py-2 rounded hover:bg-red-700">
+                        View Details
+                    </a>
+                </div>
             @endforeach
-
         </div>
 
-        {{-- Pagination --}}
-        <div class="mt-6 flex justify-center">
+        <div class="mt-6">
             {{ $orders->links() }}
         </div>
-
-    @else
-        {{-- Empty State --}}
-        <div class="bg-white p-10 rounded-lg shadow text-center mt-10">
-            <h2 class="text-xl font-semibold text-gray-700 mb-2">No Custom Orders Yet</h2>
-            <p class="text-gray-500 mb-4">No custom product orders have been created yet.</p>
-        </div>
     @endif
-
 </div>
 @endsection
