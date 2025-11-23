@@ -20,8 +20,8 @@ class WelcomeController extends Controller
         // Total orders
         $totalOrders = Order::count();
 
-        // Total sales amount
-        $totalSalesAmount = Order::sum('total');
+        // Total sales amount (fixed: use total_amount)
+        $totalSalesAmount = Order::sum('total_amount');
 
         return view('welcome', compact(
             'latestProducts',

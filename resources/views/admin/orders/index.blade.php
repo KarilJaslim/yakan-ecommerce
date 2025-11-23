@@ -31,16 +31,18 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-                @foreach($orders as $order)
+                @forelse($orders as $order)
                 <tr class="hover:bg-gray-100">
                     <td class="py-3 px-4">{{ $order->id }}</td>
                     <td class="py-3 px-4">{{ $order->user->name ?? 'Guest' }}</td>
                     <td class="py-3 px-4">
-                        @foreach($order->items as $item)
-                            {{ $item->product->name }} x {{ $item->quantity }} (₱{{ number_format($item->price, 2) }})<br>
-                        @endforeach
+                        @forelse($order->orderItems ?? [] as $item)
+                            {{ $item->product->name ?? 'N/A' }} x {{ $item->quantity }} (₱{{ number_format($item->price, 2) }})<br>
+                        @empty
+                            No items
+                        @endforelse
                     </td>
-                    <td class="py-3 px-4">₱{{ number_format($order->total, 2) }}</td>
+                    <td class="py-3 px-4">₱{{ number_format($order->total_amount, 2) }}</td>
 
                     <!-- Status -->
                     <td class="py-3 px-4">
@@ -63,7 +65,7 @@
                             @elseif($order->payment_status=='pending') bg-yellow-500 text-white
                             @elseif($order->payment_status=='refunded') bg-purple-600 text-white
                             @else bg-red-600 text-white @endif">
-                            {{ ucfirst($order->payment_status) }}
+                            {{ ucfirst($order->payment_status) ?? 'N/A' }}
                         </span>
                     </td>
 
@@ -84,7 +86,11 @@
                         @endif
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="7" class="py-4 px-4 text-center">No orders found.</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

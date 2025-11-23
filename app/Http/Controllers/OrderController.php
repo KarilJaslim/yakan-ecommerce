@@ -15,8 +15,10 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::with('items.product', 'user')->get();
-        return view('admin.orders.index', compact('orders')); // Pass orders to Blade
+        // Eager load related order items and user
+        $orders = Order::with('orderItems.product', 'user')->get();
+
+        return view('admin.orders.index', compact('orders'));
     }
 
     /**
@@ -28,8 +30,8 @@ class OrderController extends Controller
 
         // Validate input
         $request->validate([
-            'status' => 'required|in:pending,completed,cancelled',
-            'payment_status' => 'nullable|in:pending,completed,failed'
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'payment_status' => 'nullable|in:pending,paid,refunded,failed'
         ]);
 
         $order->status = $request->status;
@@ -54,6 +56,16 @@ class OrderController extends Controller
             return response()->json(['error' => 'No user found'], 400);
         }
 
+        // Validate required fields
+        $request->validate([
+            'total_amount' => 'required|numeric|min:0',
+            'payment_method' => 'required|string',
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|exists:products,id',
+            'items.*.qty' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric|min:0',
+        ]);
+
         // Create the order
         $order = Order::create([
             'user_id' => $user->id,
@@ -74,15 +86,24 @@ class OrderController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Order placed successfully', 'order_id' => $order->id]);
+        return response()->json([
+            'message' => 'Order placed successfully',
+            'order_id' => $order->id
+        ]);
     }
 
     /**
-     * Show a specific order (Admin/User)
+     * Show a specific order (User view)
      */
     public function show($id)
     {
-        $order = Order::with('items.product', 'user')->findOrFail($id);
-        return view('admin.orders.show', compact('order'));
+        $order = Order::with('orderItems.product', 'user')->findOrFail($id);
+
+        // Ensure the order belongs to the authenticated user unless admin
+        if (auth()->user()->role !== 'admin' && $order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        return view('orders.show', compact('order'));
     }
 }

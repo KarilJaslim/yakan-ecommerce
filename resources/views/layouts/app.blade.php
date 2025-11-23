@@ -28,7 +28,40 @@
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
 
         <!-- Navigation -->
-        @include('layouts.navigation')
+        <nav class="bg-white shadow-md border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{{ url('/') }}" class="text-xl font-bold text-gray-900">{{ config('app.name', 'Laravel') }}</a>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <div class="flex space-x-4 items-center">
+                        <a href="{{ url('/') }}" class="text-gray-700 hover:text-gray-900">Home</a>
+                        <a href="{{ route('shop.index') }}" class="text-gray-700 hover:text-gray-900">Shop</a>
+
+                        @auth
+                            @if(auth()->user()->role === 'admin')
+                                <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-gray-900">Dashboard</a>
+                                <a href="{{ route('admin.orders.index') }}" class="text-gray-700 hover:text-gray-900">Orders</a>
+                                <a href="{{ route('admin.products.index') }}" class="text-gray-700 hover:text-gray-900">Products</a>
+                            @else
+                                <a href="{{ route('orders.index') }}" class="text-gray-700 hover:text-gray-900">My Orders</a>
+                                <a href="{{ route('cart.index') }}" class="text-gray-700 hover:text-gray-900">Cart</a>
+                            @endif
+                            <form method="POST" action="{{ route('logout') }}" class="inline">
+                                @csrf
+                                <button type="submit" class="text-gray-700 hover:text-gray-900">Logout</button>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900">Login</a>
+                            <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900">Register</a>
+                        @endauth
+                    </div>
+                </div>
+            </div>
+        </nav>
 
         <!-- Page Heading -->
         @isset($header)

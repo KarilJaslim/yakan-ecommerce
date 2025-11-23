@@ -24,11 +24,9 @@ class CartController extends Controller
                         ->first();
 
         if ($cartItem) {
-            // Increase quantity
             $cartItem->quantity += $request->quantity ?? 1;
             $cartItem->save();
         } else {
-            // Create new cart row
             Cart::create([
                 'user_id'    => $userId,
                 'product_id' => $product->id,
@@ -97,10 +95,7 @@ class CartController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        // Calculate total
-        $total = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
+        $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
 
         return view('cart.checkout', compact('cartItems', 'total'));
     }
@@ -110,32 +105,31 @@ class CartController extends Controller
      */
     public function processCheckout(Request $request)
     {
-        $userId = Auth::id();
-        $paymentMethod = $request->payment_method;
+        $request->validate([
+            'payment_method' => 'required|in:online,bank_transfer'
+        ]);
 
+        $userId = Auth::id();
         $cartItems = Cart::with('product')->where('user_id', $userId)->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->back()->with('error', 'Your cart is empty.');
         }
 
-        // Calculate total
-        $totalAmount = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
+        $totalAmount = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
 
-        // Create main order
+        // Create main order (tracking number & history auto-handled in Order model)
         $order = Order::create([
             'user_id'        => $userId,
             'total_amount'   => $totalAmount,
-            'payment_method' => $paymentMethod,
+            'payment_method' => $request->payment_method,
             'status'         => 'pending',
+            'payment_status' => 'pending',
         ]);
 
         // Add order items
         foreach ($cartItems as $item) {
-            OrderItem::create([
-                'order_id'   => $order->id,
+            $order->orderItems()->create([
                 'product_id' => $item->product_id,
                 'quantity'   => $item->quantity,
                 'price'      => $item->product->price,
@@ -145,8 +139,67 @@ class CartController extends Controller
         // Clear cart
         Cart::where('user_id', $userId)->delete();
 
-        // Redirect to user order details
-        return redirect()->route('orders.show', $order->id)
-                         ->with('success', 'Order placed successfully.');
+        // Redirect based on payment method
+        if ($request->payment_method === 'online') {
+            return redirect()->route('payment.online', $order->id)
+                             ->with('success', 'Order placed! Complete payment online.');
+        }
+
+        return redirect()->route('payment.bank', $order->id)
+                         ->with('success', 'Order placed! Complete bank payment.');
+    }
+
+    /**
+     * Show Online Payment Page
+     */
+    public function showOnlinePayment($orderId)
+    {
+        $order = Order::with('orderItems.product', 'user')->findOrFail($orderId);
+
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        return view('cart.payment-online', compact('order'));
+    }
+
+    /**
+     * Show Bank Transfer Payment Page
+     */
+    public function showBankPayment($orderId)
+    {
+        $order = Order::with('orderItems.product', 'user')->findOrFail($orderId);
+
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        return view('cart.payment-bank', compact('order'));
+    }
+
+    /**
+     * Submit Bank Payment (Upload Receipt)
+     */
+    public function submitBankPayment(Request $request, $orderId)
+    {
+        $request->validate([
+            'receipt' => 'required|image|max:5000', // 5MB max
+        ]);
+
+        $order = Order::findOrFail($orderId);
+
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized payment submission.');
+        }
+
+        // Upload image
+        $path = $request->file('receipt')->store('bank_receipts', 'public');
+
+        $order->payment_status = 'pending_verification';
+        $order->bank_receipt = $path;
+        $order->save();
+
+        return redirect()->route('orders.show', $orderId)
+                         ->with('success', 'Bank payment submitted! Please wait for verification.');
     }
 }

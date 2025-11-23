@@ -11,7 +11,7 @@ class OrderController extends Controller
     // Show all orders
     public function index(Request $request)
     {
-        $query = Order::with('user', 'items.product')->orderByDesc('created_at');
+        $query = Order::with('user', 'orderItems.product')->orderByDesc('created_at');
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -35,15 +35,28 @@ class OrderController extends Controller
     // Show single order
     public function show(Order $order)
     {
-        $order->load('user', 'items.product');
+        $order->load('user', 'orderItems.product');
         return view('admin.orders.show', compact('order'));
+    }
+
+    // Update order status
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+        ]);
+
+        $order->status = $request->status;
+        $order->save();
+
+        return redirect()->back()->with('success', 'Order status updated successfully!');
     }
 
     // Quick update order status
     public function quickUpdateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled',
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
         ]);
 
         $order->status = $request->status;
@@ -63,7 +76,7 @@ class OrderController extends Controller
         $order->payment_status = 'refunded';
         $order->save();
 
-        foreach ($order->items as $item) {
+        foreach ($order->orderItems as $item) {
             $product = $item->product;
             $product->stock += $item->quantity;
             $product->save();
