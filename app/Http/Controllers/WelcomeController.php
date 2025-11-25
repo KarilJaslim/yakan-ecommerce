@@ -2,47 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\User;
-use App\Models\Order;
+use App\Models\Category;
+use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
 {
     public function index()
     {
-        // Latest 8 products
-        $latestProducts = Product::orderBy('created_at', 'desc')->limit(8)->get();
+        // Latest 8 active products
+        $latestProducts = Product::where('status', 'active')
+            ->latest()
+            ->take(8)
+            ->get();
 
-        // Total users
-        $totalUsers = User::count();
+        // Featured products (example: you could use a 'featured' flag)
+        $featuredProducts = Product::with('category')
+            ->where('status', 'active')
+            ->latest()
+            ->take(8)
+            ->get();
 
-        // Total orders
-        $totalOrders = Order::count();
+        // Fetch all categories with their top 3 active products
+        $categories = Category::with(['products' => function ($query) {
+            $query->where('status', 'active')
+                ->latest()
+                ->take(3);
+        }])->get();
 
-        // Total sales amount (fixed: use total_amount)
-        $totalSalesAmount = Order::sum('total_amount');
+        // Total number of active products
+        $totalProducts = Product::where('status', 'active')->count();
 
+        // Pass all variables to the view
         return view('welcome', compact(
             'latestProducts',
-            'totalUsers',
-            'totalOrders',
-            'totalSalesAmount'
+            'featuredProducts',
+            'categories',
+            'totalProducts'
         ));
-    }
-
-    public function submitContact(Request $request)
-    {
-        // Handle contact form submission here...
-    }
-
-    public function addToCart(Product $product)
-    {
-        // Handle add to cart...
-    }
-
-    public function toggleWishlist(Product $product)
-    {
-        // Handle wishlist toggle...
     }
 }

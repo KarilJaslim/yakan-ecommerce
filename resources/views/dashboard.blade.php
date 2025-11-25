@@ -1,740 +1,291 @@
-{{-- resources/views/welcome.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Yakan - Traditional Crafts Platform</title>
+    <title>Yakan - Traditional Crafts</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .font-display {
-            font-family: 'Playfair Display', serif;
-        }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        .animate-fade-in-up {
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-        .animate-slide-in-left {
-            animation: slideInLeft 0.8s ease-out forwards;
-        }
-        .delay-100 { animation-delay: 0.1s; opacity: 0; }
-        .delay-200 { animation-delay: 0.2s; opacity: 0; }
-        .delay-300 { animation-delay: 0.3s; opacity: 0; }
-        .delay-400 { animation-delay: 0.4s; opacity: 0; }
-        .delay-500 { animation-delay: 0.5s; opacity: 0; }
-        
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        .hover-lift {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .hover-lift:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .pattern-bg {
-            background-image: 
-                linear-gradient(30deg, #991b1b 12%, transparent 12.5%, transparent 87%, #991b1b 87.5%, #991b1b),
-                linear-gradient(150deg, #991b1b 12%, transparent 12.5%, transparent 87%, #991b1b 87.5%, #991b1b),
-                linear-gradient(30deg, #991b1b 12%, transparent 12.5%, transparent 87%, #991b1b 87.5%, #991b1b),
-                linear-gradient(150deg, #991b1b 12%, transparent 12.5%, transparent 87%, #991b1b 87.5%, #991b1b);
-            background-size: 80px 140px;
-            background-position: 0 0, 0 0, 40px 70px, 40px 70px;
-            opacity: 0.05;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; min-width: 15rem; background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 50; }
     </style>
 </head>
-<body class="bg-white text-gray-900 antialiased">
-    {{-- Navigation --}}
-    <nav class="glass-effect fixed w-full top-0 z-50 border-b border-gray-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <div class="flex items-center space-x-3 animate-slide-in-left">
-                    <div class="bg-gradient-to-br from-red-800 to-red-900 p-2 rounded-lg shadow-lg">
-                        <svg class="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
-                        </svg>
+<body class="bg-white">
+    {{-- Top Banner --}}
+    <div class="bg-red-900 text-white text-center py-2 text-sm">
+        Free Shipping on Orders Over ₱500 | Authentic Handwoven Yakan Crafts
+    </div>
+    {{-- Nav --}}
+    <nav class="bg-white border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                {{-- Logo --}}
+                <a href="{{ url('/') }}" class="flex items-center gap-2">
+                    <svg class="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
+                    </svg>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-red-800 to-red-900 bg-clip-text text-transparent">yakan</span>
+                </a>
+                
+                {{-- Search Bar --}}
+                <div class="hidden md:flex flex-1 max-w-2xl mx-8">
+                    <div class="relative w-full">
+                        <input type="text" placeholder="Search for products..." class="w-full px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:border-red-800">
+                        <button class="absolute right-0 top-0 h-full px-6 bg-red-900 text-white hover:bg-red-800">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </button>
                     </div>
-                    <span class="text-2xl font-bold tracking-wider bg-gradient-to-r from-red-800 to-red-900 bg-clip-text text-transparent">YAKAN</span>
                 </div>
                 
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="text-gray-700 hover:text-red-800 transition font-medium relative group">
-                        Home
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-800 transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#shop" class="text-gray-700 hover:text-red-800 transition font-medium relative group">
-                        Shop
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-800 transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#custom" class="text-gray-700 hover:text-red-800 transition font-medium relative group">
-                        Custom Order
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-800 transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#artisans" class="text-gray-700 hover:text-red-800 transition font-medium relative group">
-                        Artisans
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-800 transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#contact" class="text-gray-700 hover:text-red-800 transition font-medium relative group">
-                        Contact
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-800 transition-all group-hover:w-full"></span>
-                    </a>
-                </div>
-                
-                <div class="flex items-center space-x-4 animate-fade-in-up">
+                {{-- Right Menu --}}
+                <div class="flex items-center gap-6">
                     @auth
-                        @if(auth()->user()->role === 'admin')
-                            <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-red-800 transition font-medium">Dashboard</a>
-                        @else
-                            <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-red-800 transition font-medium">Dashboard</a>
-                        @endif
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="bg-gradient-to-r from-red-800 to-red-900 text-white px-6 py-2.5 rounded-lg hover:from-red-900 hover:to-red-800 transition font-semibold shadow-md hover:shadow-lg">Logout</button>
-                        </form>
+                        {{-- Cart --}}
+                        <a href="{{ route('cart.index') }}" class="relative hover:text-red-800">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span class="absolute -top-2 -right-2 bg-red-800 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                        </a>
+                        
+                        {{-- User Dropdown --}}
+                        <div class="dropdown relative">
+                            <button class="flex items-center gap-2 hover:text-red-800">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                <span class="hidden md:block">{{ explode(' ', auth()->user()->name)[0] }}</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="dropdown-menu">
+                                <div class="px-4 py-3 border-b">
+                                    <p class="font-semibold text-sm">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                                </div>
+                                <div class="py-1">
+                                    @if(auth()->user()->role === 'admin')
+                                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm hover:bg-gray-50">Dashboard</a>
+                                    @else
+                                        <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm hover:bg-gray-50">My Account</a>
+                                        <a href="{{ route('custom_orders.index') }}" class="block px-4 py-2 text-sm hover:bg-gray-50">My Orders</a>
+                                    @endif
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-red-600">Logout</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     @else
-                        <a href="{{ route('login.user.form') }}" class="text-gray-700 hover:text-red-800 transition font-medium">Login</a>
-                        <a href="{{ route('login.user.form') }}" class="bg-gradient-to-r from-red-800 to-red-900 text-white px-6 py-2.5 rounded-lg hover:from-red-900 hover:to-red-800 transition font-semibold shadow-md hover:shadow-lg">Get Started</a>
+                        <a href="{{ route('login.user.form') }}" class="flex items-center gap-1 hover:text-red-800">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <span class="hidden md:block text-sm">Login</span>
+                        </a>
                     @endauth
+                </div>
+            </div>
+        </div>
+        
+        {{-- Category Nav --}}
+        <div class="border-t">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex gap-8 text-sm h-12 items-center">
+                    <a href="{{ url('/') }}" class="hover:text-red-800 font-medium">Home</a>
+                    <a href="{{ auth()->check() ? route('products.index') : route('login.user.form') }}" class="hover:text-red-800 font-medium">All Products</a>
+                    <a href="#shop" class="hover:text-red-800">Shop</a>
+                    <a href="#custom" class="hover:text-red-800">Custom Orders</a>
                 </div>
             </div>
         </div>
     </nav>
-
-    {{-- Hero Section --}}
-    <section id="home" class="relative bg-gradient-to-br from-red-900 via-red-800 to-red-950 text-white pt-32 pb-20 mt-20 overflow-hidden">
-        <div class="absolute inset-0 pattern-bg"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div class="animate-slide-in-left">
-                    <div class="inline-block mb-4 px-4 py-2 bg-yellow-400/20 rounded-full border border-yellow-400/30">
-                        <span class="text-yellow-400 text-sm font-semibold">✨ Authentic Handwoven Crafts</span>
-                    </div>
-                    <h1 class="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                        TUWAS<br/>
-                        <span class="text-yellow-400">YAKAN</span>
-                    </h1>
-                    <p class="text-xl md:text-2xl mb-4 text-red-100">weaving through generations</p>
-                    <p class="text-lg text-red-200 mb-8 max-w-lg">
-                        Discover the rich heritage of Yakan weaving. Each piece tells a story of tradition, artistry, and cultural pride passed down through generations.
-                    </p>
-                    <div class="flex flex-wrap gap-4">
-                        @auth
-                            <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 bg-white text-red-900 px-8 py-4 rounded-lg hover:bg-gray-100 transition font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                                </svg>
-                                SHOP NOW
-                            </a>
-                        @else
-                            <a href="{{ route('login.user.form') }}" class="inline-flex items-center gap-2 bg-white text-red-900 px-8 py-4 rounded-lg hover:bg-gray-100 transition font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                                </svg>
-                                SHOP NOW
-                            </a>
-                        @endauth
-                        <a href="#artisans" class="inline-flex items-center gap-2 bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white/10 transition font-bold text-lg">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
-                            Learn Our Heritage
-                        </a>
+    {{-- Hero Carousel --}}
+    <section class="bg-gradient-to-br from-red-900 via-red-800 to-red-950">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid md:grid-cols-2 gap-8 items-center text-white">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-yellow-400 text-red-900 text-xs font-semibold rounded mb-4">AUTHENTIC CRAFTS</span>
+                    <h1 class="text-5xl font-bold mb-4">Handwoven Yakan Treasures</h1>
+                    <p class="text-red-100 text-lg mb-6">Discover traditional weaving heritage from Zamboanga. Each piece tells a unique story.</p>
+                    <div class="flex gap-4">
+                        <a href="{{ auth()->check() ? route('products.index') : route('login.user.form') }}" class="bg-white text-red-900 px-8 py-3 rounded hover:bg-gray-100 font-medium">SHOP NOW</a>
+                        <a href="#custom" class="border-2 border-white text-white px-8 py-3 rounded hover:bg-white/10 font-medium">CUSTOM ORDER</a>
                     </div>
                 </div>
-                <div class="relative animate-fade-in-up delay-200">
-                    <div class="relative rounded-2xl overflow-hidden shadow-2xl">
-                        <div class="flex items-center justify-between">
-                            <p class="text-2xl font-bold text-red-900">₱50.00</p>
-                            <button class="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition text-sm font-semibold">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift border border-gray-100">
-                    <div class="relative group">
-                        <div class="aspect-square bg-gradient-to-br from-blue-400 to-purple-600"></div>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-2xl text-gray-900 mb-2">Pinantupan</h3>
-                        <p class="text-gray-600 mb-4">Pinantupan uses simple patterns like flowers and diamonds in elegant striped designs.</p>
-                        <div class="flex items-center justify-between">
-                            <p class="text-2xl font-bold text-red-900">₱50.00</p>
-                            <button class="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition text-sm font-semibold">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift border border-gray-100">
-                    <div class="relative group">
-                        <div class="aspect-square bg-gradient-to-br from-orange-400 to-red-600"></div>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-2xl text-gray-900 mb-2">Birey - Birey</h3>
-                        <p class="text-gray-600 mb-4">Birey-Birey is a traditional handwoven textile pattern that resembles rice grain sections.</p>
-                        <div class="flex items-center justify-between">
-                            <p class="text-2xl font-bold text-red-900">₱50.00</p>
-                            <button class="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition text-sm font-semibold">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center">
-                @auth
-                    <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 border-2 border-red-900 text-red-900 px-8 py-4 rounded-lg hover:bg-red-900 hover:text-white transition font-bold text-lg">
-                        View Shop
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                @else
-                    <a href="{{ route('login.user.form') }}" class="inline-flex items-center gap-2 border-2 border-red-900 text-red-900 px-8 py-4 rounded-lg hover:bg-red-900 hover:text-white transition font-bold text-lg">
-                        View Shop
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                @endauth
-            </div>
-        </div>
-    </section>
-
-    {{-- Testimonials --}}
-    <section id="artisans" class="py-24 bg-gradient-to-b from-gray-50 to-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <span class="text-red-800 font-semibold text-sm uppercase tracking-wider">Customer Stories</span>
-                <h2 class="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-4 mt-2">What Our Customers Say</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Hear from our satisfied customers about their Yakan experience</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white rounded-2xl shadow-lg p-8 hover-lift border border-gray-100">
-                    <div class="flex items-center mb-6">
-                        <div class="flex space-x-1">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 italic mb-6 leading-relaxed">"The quality of the Yakan weaving is absolutely stunning. Each piece tells a beautiful story!"</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-full mr-3"></div>
-                        <div>
-                            <p class="font-bold text-gray-900">Hezekiah Sarita</p>
-                            <p class="text-sm text-gray-500">Traditional Yakan Blanket</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-lg p-8 hover-lift border border-gray-100">
-                    <div class="flex items-center mb-6">
-                        <div class="flex space-x-1">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 italic mb-6 leading-relaxed">"I love the vibrant colors and intricate patterns. Supporting these artisans feels wonderful!"</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full mr-3"></div>
-                        <div>
-                            <p class="font-bold text-gray-900">Maria Santos</p>
-                            <p class="text-sm text-gray-500">Handwoven Tote Bag</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-lg p-8 hover-lift border border-gray-100">
-                    <div class="flex items-center mb-6">
-                        <div class="flex space-x-1">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 italic mb-6 leading-relaxed">"Excellent craftsmanship and fast delivery. The custom order process was seamless!"</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-600 rounded-full mr-3"></div>
-                        <div>
-                            <p class="font-bold text-gray-900">Juan Dela Cruz</p>
-                            <p class="text-sm text-gray-500">Custom Table Runner</p>
-                        </div>
-                    </div>
+                <div class="relative h-96">
+                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-400 via-red-400 to-red-600 rounded-lg"></div>
                 </div>
             </div>
         </div>
     </section>
-
-    {{-- Contact Section --}}
-    <section id="contact" class="py-24 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div>
-                    <span class="text-red-800 font-semibold text-sm uppercase tracking-wider">Let's Connect</span>
-                    <h2 class="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-6 mt-2">Get in Touch</h2>
-                    <p class="text-lg text-gray-600 mb-8">
-                        Have questions about our products or want to learn more about Yakan weaving? We'd love to hear from you.
-                    </p>
-                    
-                    <div class="space-y-6">
-                        <div class="flex items-start space-x-4">
-                            <div class="bg-red-100 rounded-xl p-3 flex-shrink-0">
-                                <svg class="w-6 h-6 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900 mb-1">Address</h3>
-                                <p class="text-gray-600">Upper Calarian, Zamboanga City, Philippines</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start space-x-4">
-                            <div class="bg-red-100 rounded-xl p-3 flex-shrink-0">
-                                <svg class="w-6 h-6 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900 mb-1">Email</h3>
-                                <p class="text-gray-600">info@tuwasyakan.com</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start space-x-4">
-                            <div class="bg-red-100 rounded-xl p-3 flex-shrink-0">
-                                <svg class="w-6 h-6 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900 mb-1">Phone</h3>
-                                <p class="text-gray-600">+63 XXX XXX XXXX</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200">
-                    <form class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
-                                <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition" placeholder="John">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
-                                <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition" placeholder="Doe">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
-                            <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition" placeholder="How can we help?">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Message</label>
-                            <textarea rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition" placeholder="Your message..."></textarea>
-                        </div>
-                        
-                        <button type="submit" class="w-full bg-gradient-to-r from-red-800 to-red-900 text-white px-6 py-4 rounded-lg hover:from-red-900 hover:to-red-800 transition font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
-                            Send Message
-                        </button>
-                    </form>
-                </div>
+    {{-- Categories --}}
+    <section class="py-8 bg-white border-b">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                @foreach([
+                    ['name' => 'Bags', 'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'],
+                    ['name' => 'Textiles', 'icon' => 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'],
+                    ['name' => 'Home Decor', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+                    ['name' => 'Accessories', 'icon' => 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4']
+                ] as $cat)
+                <a href="{{ auth()->check() ? route('products.index') : route('login.user.form') }}" class="border rounded p-4 text-center hover:border-red-800 hover:shadow-md transition">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-red-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $cat['icon'] }}"/>
+                    </svg>
+                    <p class="font-medium text-sm">{{ $cat['name'] }}</p>
+                </a>
+                @endforeach
             </div>
         </div>
     </section>
-
-    {{-- Footer --}}
-    <footer class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="bg-gradient-to-br from-red-800 to-red-900 p-2 rounded-lg">
-                            <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/>
-                            </svg>
-                        </div>
-                        <span class="text-2xl font-bold">YAKAN</span>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed">Preserving traditional Yakan weaving heritage through authentic handcrafted products.</p>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold text-lg mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#home" class="hover:text-yellow-400 transition">Home</a></li>
-                        @auth
-                            <li><a href="{{ route('products.index') }}" class="hover:text-yellow-400 transition">Shop</a></li>
-                        @else
-                            <li><a href="{{ route('login.user.form') }}" class="hover:text-yellow-400 transition">Shop</a></li>
-                        @endauth
-                        <li><a href="#custom" class="hover:text-yellow-400 transition">Custom Orders</a></li>
-                        <li><a href="#artisans" class="hover:text-yellow-400 transition">Artisans</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold text-lg mb-4">Support</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#contact" class="hover:text-yellow-400 transition">Contact Us</a></li>
-                        <li><a href="#" class="hover:text-yellow-400 transition">FAQs</a></li>
-                        <li><a href="#" class="hover:text-yellow-400 transition">Shipping Info</a></li>
-                        <li><a href="#" class="hover:text-yellow-400 transition">Returns</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold text-lg mb-4">Contact</h4>
-                    <div class="space-y-2 text-gray-400 text-sm">
-                        <p>Upper Calarian</p>
-                        <p>Zamboanga City, Philippines</p>
-                        <p class="pt-2">info@tuwasyakan.com</p>
-                        <p>+63 XXX XXX XXXX</p>
-                    </div>
+    {{-- Flash Sale --}}
+    <section class="py-4 bg-gradient-to-r from-red-800 to-red-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                <span class="font-bold">FLASH SALE</span>
+                <span class="text-sm">Ends in: 2h 30m 45s</span>
+            </div>
+            <a href="{{ auth()->check() ? route('products.index') : route('login.user.form') }}" class="text-sm border border-white px-4 py-1 rounded hover:bg-white hover:text-red-900">VIEW ALL</a>
+        </div>
+    </section>
+    {{-- Products Grid --}}
+    <section id="shop" class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Featured Products</h2>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1 border rounded text-sm hover:border-red-800">Latest</button>
+                    <button class="px-3 py-1 border rounded text-sm hover:border-red-800">Price</button>
+                    <button class="px-3 py-1 border rounded text-sm hover:border-red-800">Popular</button>
                 </div>
             </div>
             
-            <div class="border-t border-gray-700 pt-8">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2024 Yakan E-commerce. All rights reserved.</p>
-                    <div class="flex space-x-6 text-sm text-gray-400">
-                        <a href="#" class="hover:text-yellow-400 transition">Privacy Policy</a>
-                        <a href="#" class="hover:text-yellow-400 transition">Terms of Service</a>
-                        <a href="#contact" class="hover:text-yellow-400 transition">Contact</a>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                @foreach([
+                    ['title' => 'Yakan Bag', 'price' => '450.00', 'sold' => '152', 'color' => 'from-pink-400 to-red-500'],
+                    ['title' => 'Wall Tapestry', 'price' => '890.00', 'sold' => '89', 'color' => 'from-blue-400 to-purple-500'],
+                    ['title' => 'Woven Pillow', 'price' => '250.00', 'sold' => '234', 'color' => 'from-yellow-400 to-orange-500'],
+                    ['title' => 'Table Runner', 'price' => '380.00', 'sold' => '67', 'color' => 'from-green-400 to-teal-500'],
+                    ['title' => 'Tote Bag', 'price' => '520.00', 'sold' => '198', 'color' => 'from-red-400 to-pink-500'],
+                    ['title' => 'Blanket', 'price' => '1250.00', 'sold' => '43', 'color' => 'from-indigo-400 to-purple-500']
+                ] as $product)
+                <div class="bg-white border rounded hover:shadow-lg transition cursor-pointer group">
+                    <div class="relative overflow-hidden aspect-square">
+                        <div class="absolute inset-0 bg-gradient-to-br {{ $product['color'] }}"></div>
+                        <div class="absolute top-2 left-2 bg-red-800 text-white text-xs px-2 py-1 rounded">-20%</div>
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                            <button class="bg-white p-2 rounded-full shadow hover:bg-red-50">
+                                <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm mb-1 line-clamp-2 h-10">{{ $product['title'] }}</h3>
+                        <div class="flex items-baseline gap-2 mb-1">
+                            <span class="text-red-900 font-bold">₱{{ $product['price'] }}</span>
+                            <span class="text-xs text-gray-400 line-through">₱{{ number_format(floatval($product['price']) * 1.25, 2) }}</span>
+                        </div>
+                        <div class="flex items-center text-xs text-gray-500">
+                            <svg class="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                            </svg>
+                            <span class="ml-1">4.8 | {{ $product['sold'] }} sold</span>
+                        </div>
                     </div>
                 </div>
+                @endforeach
+            </div>
+            <div class="text-center mt-8">
+                <a href="{{ auth()->check() ? route('products.index') : route('login.user.form') }}" class="inline-block border-2 border-red-900 text-red-900 px-8 py-3 rounded hover:bg-red-900 hover:text-white transition font-medium">
+                    SEE MORE
+                </a>
+            </div>
+        </div>
+    </section>
+    {{-- Custom Order Banner --}}
+    <section id="custom" class="py-16 bg-gradient-to-br from-red-900 via-red-800 to-red-950 text-white">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-4">Want Something Special?</h2>
+            <p class="text-xl mb-8 text-red-100">Create your custom Yakan piece with your preferred colors and patterns</p>
+            <a href="{{ auth()->check() ? route('custom_orders.create') : route('login.user.form') }}" class="inline-block bg-white text-red-900 px-10 py-4 rounded font-bold hover:bg-gray-100">
+                START CUSTOM ORDER
+            </a>
+        </div>
+    </section>
+    {{-- Footer --}}
+    <footer class="bg-gray-900 text-white pt-12 pb-6">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
+                <div class="col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <svg class="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                        </svg>
+                        <span class="text-2xl font-bold">YAKAN</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-4">Authentic handwoven Yakan crafts from Zamboanga City. Preserving cultural heritage through traditional weaving.</p>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-red-800">f</a>
+                        <a href="#" class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-red-800">i</a>
+                        <a href="#" class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-red-800">t</a>
+                    </div>
+                </div>
+                
+                @foreach([
+                    ['title' => 'Customer Service', 'links' => ['Help Center', 'Payment Methods', 'Track Order', 'Return & Refund']],
+                    ['title' => 'About', 'links' => ['About Us', 'Our Artisans', 'Terms & Conditions', 'Privacy Policy']],
+                    ['title' => 'Contact', 'links' => ['Zamboanga City', 'Philippines', 'info@yakan.com', '+63 XXX XXXX']]
+                ] as $section)
+                <div>
+                    <h4 class="font-bold mb-3 text-sm">{{ $section['title'] }}</h4>
+                    <ul class="space-y-2">
+                        @foreach($section['links'] as $link)
+                            <li><a href="#" class="text-sm text-gray-400 hover:text-red-400">{{ $link }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endforeach
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
+                © 2024 Yakan. All Rights Reserved.
             </div>
         </div>
     </footer>
-
-    {{-- Scroll to Top Button --}}
-    <button id="scrollToTop" class="fixed bottom-8 right-8 bg-gradient-to-br from-red-800 to-red-900 text-white p-4 rounded-full shadow-xl hover:from-red-900 hover:to-red-800 transition opacity-0 pointer-events-none transform hover:scale-110 z-50">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    {{-- Back to Top --}}
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-red-900 text-white p-3 rounded-full shadow-lg opacity-0 transition hover:bg-red-800 z-50">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
         </svg>
     </button>
-
     <script>
-        // Scroll to top functionality
-        const scrollBtn = document.getElementById('scrollToTop');
-        
+        const btn = document.getElementById('backToTop');
         window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                scrollBtn.classList.remove('opacity-0', 'pointer-events-none');
-            } else {
-                scrollBtn.classList.add('opacity-0', 'pointer-events-none');
-            }
+            btn.style.opacity = window.pageYOffset > 300 ? '1' : '0';
         });
+        btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         
-        scrollBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    const offsetTop = target.offsetTop - 80; // Account for fixed navbar
-                    window.scrollTo({
-                        top: offsetTop,
-                        behavior: 'smooth'
-                    });
-                }
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
             });
-        });
-
-        // Navbar background on scroll
-        const navbar = document.querySelector('nav');
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 50) {
-                navbar.classList.add('shadow-lg');
-            } else {
-                navbar.classList.remove('shadow-lg');
-            }
-        });
-
-        // Animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-fade-in-up');
-                }
-            });
-        }, observerOptions);
-
-        // Observe elements for animation
-        document.querySelectorAll('section > div').forEach(el => {
-            observer.observe(el);
         });
     </script>
 </body>
-</html> class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-                            <input type="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition" placeholder="john@example.com">
-                        </div>
-                        
-                        <div>
-                            <label class="aspect-square bg-gradient-to-br from-yellow-400 via-red-400 to-red-600 rounded-2xl"></div>
-                        <div class="absolute inset-0 bg-black/10"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- Featured Products --}}
-    <section id="shop" class="py-24 bg-gradient-to-b from-gray-50 to-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16 animate-fade-in-up">
-                <span class="text-red-800 font-semibold text-sm uppercase tracking-wider">Our Collection</span>
-                <h2 class="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-4 mt-2">Featured Products</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Handpicked selections showcasing the finest Yakan craftsmanship</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {{-- Product Card 1 --}}
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift animate-fade-in-up delay-100 border border-gray-100">
-                    <div class="relative group">
-                        <div class="aspect-square bg-gradient-to-br from-pink-400 to-red-600"></div>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-                        <span class="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">Featured</span>
-                        <button class="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-red-50 transition transform hover:scale-110">
-                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl text-gray-900 mb-2">Yakan Handwoven Bag</h3>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">Authentic handwoven bag featuring traditional Yakan patterns and vibrant colors.</p>
-                        <div class="flex items-center justify-between">
-                            <p class="text-2xl font-bold text-red-900">₱75.00</p>
-                            <button class="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition text-sm font-semibold">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Product Card 2 --}}
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift animate-fade-in-up delay-200 border border-gray-100">
-                    <div class="relative group">
-                        <div class="aspect-square bg-gradient-to-br from-blue-400 to-purple-600"></div>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-                        <span class="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">Best Seller</span>
-                        <button class="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-red-50 transition transform hover:scale-110">
-                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl text-gray-900 mb-2">Traditional Tapestry</h3>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">Beautiful wall tapestry showcasing intricate geometric patterns.</p>
-                        <div class="flex items-center justify-between">
-                            <p class="text-2xl font-bold text-red-900">₱120.00</p>
-                            <button class="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition text-sm font-semibold">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Product Card 3 --}}
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift animate-fade-in-up delay-300 border border-gray-100">
-                    <div class="relative group">
-                        <div class="aspect-square bg-gradient-to-br from-yellow-400 to-orange-600"></div>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-                        <button class="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-red-50 transition transform hover:scale-110">
-                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl text-gray-900 mb-2">Yakan Woven Pillow</h3>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">Decorative pillow with traditional Yakan weaving patterns.</p>
-                        <div class="flex items-center justify-between">
-                            <p class="text-2xl font-bold text-red-900">₱25.00</p>
-                            <button class="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition text-sm font-semibold">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Product Card 4 --}}
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift animate-fade-in-up delay-400 border border-gray-100">
-                    <div class="relative group">
-                        <div class="aspect-square bg-gradient-to-br from-green-400 to-teal-600"></div>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-                        <button class="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-red-50 transition transform hover:scale-110">
-                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl text-gray-900 mb-2">Yakan Table Runner</h3>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">Elegant table runner featuring traditional handwoven patterns.</p>
-                        <div class="flex items-center justify-between">
-                            <p class="text-2xl font-bold text-red-900">₱45.00</p>
-                            <button class="bg-red-900 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition text-sm font-semibold">Add to Cart</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center mt-12">
-                @auth
-                    <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-red-800 to-red-900 text-white px-8 py-4 rounded-lg hover:from-red-900 hover:to-red-800 transition font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
-                        View All Products
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                @else
-                    <a href="{{ route('login.user.form') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-red-800 to-red-900 text-white px-8 py-4 rounded-lg hover:from-red-900 hover:to-red-800 transition font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
-                        View All Products
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                @endauth
-            </div>
-        </div>
-    </section>
-
-    {{-- Custom Order CTA --}}
-    <section id="custom" class="py-24 bg-gradient-to-br from-red-900 via-red-800 to-red-950 text-white relative overflow-hidden">
-        <div class="absolute inset-0 pattern-bg"></div>
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div class="animate-fade-in-up">
-                <span class="text-yellow-400 font-semibold text-sm uppercase tracking-wider">Bespoke Creations</span>
-                <h2 class="font-display text-4xl md:text-5xl font-bold mb-6 mt-2">Personalise Your Weave</h2>
-                <p class="text-xl text-red-100 mb-8 max-w-2xl mx-auto">
-                    Create a unique piece that reflects your style. Choose your colors, patterns, and dimensions for a truly custom Yakan weaving.
-                </p>
-                <div class="flex flex-wrap gap-4 justify-center">
-                    @auth
-                        <a href="{{ route('custom_orders.create') }}" class="inline-flex items-center gap-2 bg-white text-red-900 px-10 py-5 rounded-xl hover:bg-gray-100 transition font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            Start Custom Order
-                        </a>
-                    @else
-                        <a href="{{ route('login.user.form') }}" class="inline-flex items-center gap-2 bg-white text-red-900 px-10 py-5 rounded-xl hover:bg-gray-100 transition font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            Start Custom Order
-                        </a>
-                    @endauth
-                    <a href="#contact" class="inline-flex items-center gap-2 bg-transparent border-2 border-white text-white px-10 py-5 rounded-xl hover:bg-white/10 transition font-bold text-lg">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        Contact Us
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- Shop Collection --}}
-    <section class="py-24 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <span class="text-red-800 font-semibold text-sm uppercase tracking-wider">Traditional Patterns</span>
-                <h2 class="font-display text-4xl md:text-5xl font-bold text-gray-900 mb-4 mt-2">Shop Our Collection</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Browse our complete collection of authentic Yakan weaving products</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift border border-gray-100">
-                    <div class="relative group">
-                        <div class="aspect-square bg-gradient-to-br from-red-400 to-pink-600"></div>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-2xl text-gray-900 mb-2">Saputangan</h3>
-                        <p class="text-gray-600 mb-4">The Saputangan is a square piece of woven cloth featuring traditional geometric patterns in vibrant red tones.</p>
-                        <div
+</html>

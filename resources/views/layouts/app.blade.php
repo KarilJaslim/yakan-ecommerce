@@ -12,53 +12,61 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     @stack('styles')
-
     <style>
-        /* Smooth UI transitions */
-        * {
-            transition: all .2s ease-in-out;
-        }
+        * { transition: all .2s ease-in-out; }
     </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-100 text-gray-800">
-    <!-- Background gradient -->
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
 
         <!-- Navigation -->
         <nav class="bg-white shadow-md border-b">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
-                    <!-- Logo -->
+
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ url('/') }}" class="text-xl font-bold text-gray-900">{{ config('app.name', 'Laravel') }}</a>
+                        <a href="{{ url('/') }}" class="text-xl font-bold text-gray-900">
+                            {{ config('app.name') }}
+                        </a>
                     </div>
 
-                    <!-- Navigation Links -->
                     <div class="flex space-x-4 items-center">
                         <a href="{{ url('/') }}" class="text-gray-700 hover:text-gray-900">Home</a>
-                        <a href="{{ route('shop.index') }}" class="text-gray-700 hover:text-gray-900">Shop</a>
+                        <a href="{{ route('products.index') }}" class="text-gray-700 hover:text-gray-900">Products</a>
 
-                        @auth
-                            @if(auth()->user()->role === 'admin')
-                                <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-gray-900">Dashboard</a>
-                                <a href="{{ route('admin.orders.index') }}" class="text-gray-700 hover:text-gray-900">Orders</a>
-                                <a href="{{ route('admin.products.index') }}" class="text-gray-700 hover:text-gray-900">Products</a>
-                            @else
-                                <a href="{{ route('orders.index') }}" class="text-gray-700 hover:text-gray-900">My Orders</a>
-                                <a href="{{ route('cart.index') }}" class="text-gray-700 hover:text-gray-900">Cart</a>
-                            @endif
+                        {{-- CHECK IF ADMIN IS LOGGED IN --}}
+                        @if(Auth::guard('admin')->check())
+
+                            <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-gray-900">Dashboard</a>
+                            <a href="{{ route('admin.orders.index') }}" class="text-gray-700 hover:text-gray-900">Orders</a>
+                            <a href="{{ route('admin.products.index') }}" class="text-gray-700 hover:text-gray-900">Products</a>
+
+                            <form method="POST" action="{{ route('admin.logout') }}" class="inline">
+                                @csrf
+                                <button type="submit" class="text-gray-700 hover:text-gray-900">Logout</button>
+                            </form>
+
+                        {{-- CHECK IF NORMAL USER IS LOGGED IN --}}
+                        @elseif(Auth::check())
+
+                            <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-gray-900">Dashboard</a>
+                            <a href="{{ route('orders.index') }}" class="text-gray-700 hover:text-gray-900">My Orders</a>
+                            <a href="{{ route('cart.index') }}" class="text-gray-700 hover:text-gray-900">Cart</a>
+
                             <form method="POST" action="{{ route('logout') }}" class="inline">
                                 @csrf
                                 <button type="submit" class="text-gray-700 hover:text-gray-900">Logout</button>
                             </form>
+
                         @else
-                            <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900">Login</a>
+                            {{-- GUEST --}}
+                            <a href="{{ route('login.user.form') }}" class="text-gray-700 hover:text-gray-900">Login</a>
                             <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900">Register</a>
-                        @endauth
+                        @endif
                     </div>
+
                 </div>
             </div>
         </nav>
@@ -67,9 +75,7 @@
         @isset($header)
             <header class="bg-white shadow-sm border-b">
                 <div class="max-w-7xl mx-auto py-6 px-6 lg:px-8">
-                    <h1 class="text-2xl font-semibold text-gray-900">
-                        {{ $header }}
-                    </h1>
+                    <h1 class="text-2xl font-semibold text-gray-900">{{ $header }}</h1>
                 </div>
             </header>
         @endisset
@@ -86,3 +92,6 @@
     @stack('scripts')
 </body>
 </html>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

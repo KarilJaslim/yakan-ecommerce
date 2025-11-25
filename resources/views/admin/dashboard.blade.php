@@ -71,8 +71,8 @@
                             <td class="py-3 px-4">{{ $order->id }}</td>
                             <td class="py-3 px-4">{{ $order->user->name ?? 'Guest' }}</td>
                             <td class="py-3 px-4">
-                                @foreach ($order->items as $item)
-                                    {{ $item->product->name }} x {{ $item->quantity }}
+                                @foreach ($order->orderItems ?? [] as $item)
+                                    {{ $item->product->name ?? 'Product Deleted' }} x {{ $item->quantity }}
                                     (₱{{ number_format($item->price, 2) }}) <br>
                                 @endforeach
                             </td>
