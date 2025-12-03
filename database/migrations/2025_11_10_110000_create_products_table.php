@@ -16,7 +16,6 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('image')->nullable();
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

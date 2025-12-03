@@ -21,13 +21,38 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required']
         ]);
 
-        if (Auth::attempt($credentials) && Auth::user()->role === 'user') {
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            
+            \Log::info('User login attempt - Email: ' . $request->email . ', Role: ' . ($user ? $user->role : 'null'));
+            
+            // Check if user exists and has correct role
+            if (!$user) {
+                return back()->withErrors([
+                    'email' => 'Invalid credentials.'
+                ]);
+            }
+            
+            if ($user->role !== 'user') {
+                \Log::info('User role check failed - Role: ' . $user->role . ', Expected: user');
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'This account is not authorized for user access.'
+                ]);
+            }
+            
+            \Log::info('User login successful - Redirecting to /dashboard');
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+            
+            // Clear any intended URL that might be from previous admin login attempts
+            $request->session()->forget('url.intended');
+            
+            // Force redirect to user dashboard
+            return redirect('/dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials or you are not a user.'
+            'email' => 'Invalid credentials.'
         ]);
     }
 
@@ -45,9 +70,23 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required']
         ]);
 
-        if (Auth::attempt($credentials) && Auth::user()->role === 'admin') {
-            $request->session()->regenerate();
-            return redirect()->intended('/admin/dashboard');
+        if (Auth::guard('admin')->attempt($credentials)) {
+            $user = Auth::guard('admin')->user();
+            
+            if ($user && $user->role === 'admin') {
+                $request->session()->regenerate();
+                
+                // Clear web guard to prevent conflicts
+                Auth::guard('web')->logout();
+                
+                return redirect('/admin/dashboard')->with('success', 'Admin login successful!');
+            }
+            
+            // Logout if not admin
+            Auth::guard('admin')->logout();
+            return back()->withErrors([
+                'email' => 'Access denied. Admin privileges required.'
+            ]);
         }
 
         return back()->withErrors([

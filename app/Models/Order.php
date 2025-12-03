@@ -12,9 +12,36 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'total_amount',
+        'discount_amount',
+        'coupon_id',
+        'coupon_code',
         'status',
         'payment_status',
+        'payment_method',
+        'tracking_number',
+        'tracking_status',
+        'tracking_history',
     ];
+
+    // Casting handled by getter method
+
+    /**
+     * Get tracking history as array (handles string JSON)
+     */
+    public function getTrackingHistoryAttribute($value)
+    {
+        if (is_string($value)) {
+            // Handle escaped JSON
+            $decoded = json_decode($value, true);
+            if (is_string($decoded)) {
+                // If it's still a string, decode again
+                $decoded = json_decode($decoded, true);
+            }
+            return is_array($decoded) ? $decoded : [];
+        }
+        
+        return $value ?? [];
+    }
 
     // Relationship to user
     public function user()
@@ -26,5 +53,15 @@ class Order extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function appendTrackingEvent(string $status, string $date = null): void
+    {
+        $history = $this->tracking_history ?? [];
+        $history[] = [
+            'status' => $status,
+            'date' => $date ?? now()->format('Y-m-d h:i A'),
+        ];
+        $this->tracking_history = $history;
     }
 }

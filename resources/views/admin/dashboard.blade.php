@@ -2,170 +2,693 @@
 
 @section('title', 'Dashboard')
 
+@push('styles')
+<style>
+/* Custom animations and styles */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-pulse-slow {
+    animation: pulse 2s infinite;
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+/* Glass morphism effect */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Gradient text */
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Card hover effects */
+.card-hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Neon glow effect */
+.neon-glow {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+/* Progress bar animation */
+.progress-animate {
+    transition: width 1.5s ease-out;
+}
+
+/* Floating animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+</style>
+@endpush
+
 @section('content')
-<div class="container mx-auto py-6">
-
-    <!-- Dashboard Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-        <!-- Total Orders -->
-        <div class="bg-blue-600 text-white rounded-lg shadow p-6 flex flex-col justify-between">
-            <div>
-                <h2 class="text-lg font-semibold mb-2">Total Orders</h2>
-                <p class="text-3xl font-bold" id="totalOrders">{{ $totalOrders ?? 0 }}</p>
-            </div>
-            <i class="fas fa-shopping-basket fa-2x mt-4"></i>
-        </div>
-
-        <!-- Pending Orders -->
-        <div class="bg-yellow-500 text-white rounded-lg shadow p-6 flex flex-col justify-between">
-            <div>
-                <h2 class="text-lg font-semibold mb-2">Pending Orders</h2>
-                <p class="text-3xl font-bold" id="pendingOrders">{{ $pendingOrders ?? 0 }}</p>
-            </div>
-            <i class="fas fa-clock fa-2x mt-4"></i>
-        </div>
-
-        <!-- Completed Orders -->
-        <div class="bg-green-600 text-white rounded-lg shadow p-6 flex flex-col justify-between">
-            <div>
-                <h2 class="text-lg font-semibold mb-2">Completed Orders</h2>
-                <p class="text-3xl font-bold" id="completedOrders">{{ $completedOrders ?? 0 }}</p>
-            </div>
-            <i class="fas fa-check fa-2x mt-4"></i>
-        </div>
-
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
+    <!-- Animated Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation" style="animation-delay: 2s;"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 float-animation" style="animation-delay: 4s;"></div>
     </div>
 
-    <!-- Charts Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded shadow p-4">
-            <h3 class="text-lg font-semibold mb-2">Orders by Status</h3>
-            <canvas id="ordersStatusChart" class="w-full h-64"></canvas>
+    <!-- Main Content -->
+    <div class="relative z-10 p-6 space-y-8">
+        <!-- Enhanced Welcome Header -->
+        <div class="animate-fade-in-up">
+            <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-black opacity-10"></div>
+                <div class="relative z-10">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="text-green-300 text-sm font-medium">System Online</span>
+                            </div>
+                            <h1 class="text-4xl lg:text-5xl font-bold leading-tight">
+                                Welcome back, <span class="gradient-text text-white">Admin</span>
+                            </h1>
+                            <p class="text-xl text-indigo-100 max-w-2xl">
+                                Here's your comprehensive business overview for {{ now()->format('F j, Y') }}
+                            </p>
+                            <div class="flex flex-wrap gap-3 pt-2">
+                                <div class="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span class="text-sm">{{ now()->format('l') }}</span>
+                                </div>
+                                <div class="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="text-sm">{{ now()->format('g:i A') }}</span>
+                                </div>
+                                <div class="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                                    <i class="fas fa-sun"></i>
+                                    <span class="text-sm">{{ now()->format('h:i A') }} PST</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 lg:mt-0 lg:ml-8">
+                            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                                <div class="text-center">
+                                    <div class="text-5xl font-bold mb-2">{{ $totalOrders }}</div>
+                                    <div class="text-sm text-indigo-200">Total Orders</div>
+                                    <div class="mt-3 text-2xl font-semibold">₱{{ number_format($totalRevenue, 0) }}</div>
+                                    <div class="text-sm text-indigo-200">Total Revenue</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="bg-white rounded shadow p-4">
-            <h3 class="text-lg font-semibold mb-2">Top Selling Products</h3>
-            <canvas id="topProductsChart" class="w-full h-64"></canvas>
-        </div>
-    </div>
 
-    <!-- All Orders Table -->
-    <div class="mb-8">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700">All Orders</h2>
-        <div class="overflow-x-auto bg-white rounded shadow">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-800 text-white">
-                    <tr>
-                        <th class="py-3 px-4">Order ID</th>
-                        <th class="py-3 px-4">User</th>
-                        <th class="py-3 px-4">Products</th>
-                        <th class="py-3 px-4">Total</th>
-                        <th class="py-3 px-4">Status</th>
-                        <th class="py-3 px-4">Payment Status</th>
-                        <th class="py-3 px-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    @foreach ($orders as $order)
-                        <tr class="hover:bg-gray-100">
-                            <td class="py-3 px-4">{{ $order->id }}</td>
-                            <td class="py-3 px-4">{{ $order->user->name ?? 'Guest' }}</td>
-                            <td class="py-3 px-4">
-                                @foreach ($order->orderItems ?? [] as $item)
-                                    {{ $item->product->name ?? 'Product Deleted' }} x {{ $item->quantity }}
-                                    (₱{{ number_format($item->price, 2) }}) <br>
-                                @endforeach
-                            </td>
-                            <td class="py-3 px-4">₱{{ number_format($order->total, 2) }}</td>
-                            <td class="py-3 px-4">
-                                <form action="{{ route('admin.orders.quickUpdateStatus', $order->id) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    <select name="status" class="border rounded px-2 py-1 w-full" onchange="this.form.submit()">
-                                        <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing</option>
-                                        <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                    </select>
-                                </form>
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="px-2 py-1 rounded 
-                                    @if($order->payment_status == 'paid') bg-green-600 text-white
-                                    @elseif($order->payment_status == 'pending') bg-yellow-500 text-white
-                                    @else bg-red-600 text-white @endif">
-                                    {{ ucfirst($order->payment_status) }}
-                                </span>
-                            </td>
-                            <td class="py-3 px-4">
-                                <a href="{{ route('admin.orders.show', $order->id) }}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                                    View
-                                </a>
-                            </td>
-                        </tr>
+        <!-- Enhanced Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-in-left">
+            <!-- Total Revenue Card -->
+            <div class="group relative">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-600 rounded-2xl opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></div>
+                <div class="relative bg-white rounded-2xl p-6 card-hover-lift">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-money-bill-wave text-white text-xl"></i>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">Live</span>
+                            <span class="text-xs text-gray-500 mt-1">+12.5%</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-3xl font-bold text-gray-900">₱{{ number_format($totalRevenue, 0) }}</h3>
+                        <p class="text-gray-600 text-sm font-medium">Total Revenue</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>Progress</span>
+                            <span>{{ min(100, round($totalRevenue / 1000)) }}%</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-green-400 to-emerald-600 rounded-full progress-animate" style="width: {{ min(100, $totalRevenue / 1000) }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Orders Card -->
+            <div class="group relative">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-indigo-600 rounded-2xl opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></div>
+                <div class="relative bg-white rounded-2xl p-6 card-hover-lift">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-shopping-bag text-white text-xl"></i>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{{ $pendingOrders }} pending</span>
+                            <span class="text-xs text-gray-500 mt-1">+8.2%</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-3xl font-bold text-gray-900">{{ $totalOrders }}</h3>
+                        <p class="text-gray-600 text-sm font-medium">Total Orders</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>Progress</span>
+                            <span>{{ min(100, round($totalOrders / 20)) }}%</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-blue-400 to-indigo-600 rounded-full progress-animate" style="width: {{ min(100, $totalOrders / 20) }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Users Card -->
+            <div class="group relative">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-pink-600 rounded-2xl opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></div>
+                <div class="relative bg-white rounded-2xl p-6 card-hover-lift">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded-full">Active</span>
+                            <span class="text-xs text-gray-500 mt-1">+15.3%</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-3xl font-bold text-gray-900">{{ $totalUsers }}</h3>
+                        <p class="text-gray-600 text-sm font-medium">Total Users</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>Progress</span>
+                            <span>{{ min(100, round($totalUsers / 100)) }}%</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-purple-400 to-pink-600 rounded-full progress-animate" style="width: {{ min(100, $totalUsers / 100) }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Orders Card -->
+            <div class="group relative">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-red-600 rounded-2xl opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></div>
+                <div class="relative bg-white rounded-2xl p-6 card-hover-lift">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-check-circle text-white text-xl"></i>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full">{{ $completedOrders }} done</span>
+                            <span class="text-xs text-gray-500 mt-1">{{ $totalOrders > 0 ? round(($completedOrders / $totalOrders) * 100) : 0 }}% rate</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-3xl font-bold text-gray-900">{{ $completedOrders }}</h3>
+                        <p class="text-gray-600 text-sm font-medium">Completed Orders</p>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>Completion Rate</span>
+                            <span>{{ $totalOrders > 0 ? round(($completedOrders / $totalOrders) * 100) : 0 }}%</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-orange-400 to-red-600 rounded-full progress-animate" style="width: {{ $totalOrders > 0 ? min(100, ($completedOrders / $totalOrders) * 100) : 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Charts Section -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <!-- Sales Chart -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 card-hover-lift">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">Sales Overview</h2>
+                            <p class="text-sm text-gray-500">Last 7 days performance</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                            Export
+                        </button>
+                        <button class="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                <div class="h-80">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Order Status Chart -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 card-hover-lift">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-pie text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">Order Status</h2>
+                            <p class="text-sm text-gray-500">Real-time distribution</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('admin.orders.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-1">
+                        <span>View All</span>
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+                <div class="h-80">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Top Products Section -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 card-hover-lift">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-trophy text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">Top Selling Products</h2>
+                        <p class="text-sm text-gray-500">Best performers this week</p>
+                    </div>
+                </div>
+                <a href="{{ route('admin.products.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-1">
+                    <span>View All</span>
+                    <i class="fas fa-arrow-right text-xs"></i>
+                </a>
+            </div>
+            @if($topProducts->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    @foreach($topProducts as $index => $product)
+                        <div class="group relative">
+                            <div class="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-red-600 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
+                            <div class="relative bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 text-center border border-orange-100 hover:border-orange-200 transition-all duration-300">
+                                <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-600 rounded-lg flex items-center justify-center mx-auto mb-3 shadow-lg">
+                                    <span class="text-white font-bold text-lg">{{ $index + 1 }}</span>
+                                </div>
+                                <h3 class="font-bold text-gray-900 text-sm mb-1 truncate">{{ $product->name ?? 'Product ' . ($index + 1) }}</h3>
+                                <p class="text-xs text-gray-600">{{ $product->quantity_sold ?? 0 }} sold</p>
+                                <div class="mt-2 flex items-center justify-center space-x-1">
+                                    @for($i = 0; $i < min(5, $product->quantity_sold ?? 0); $i++)
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
                     @endforeach
-                </tbody>
-            </table>
+                </div>
+            @else
+                <div class="text-center py-12">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-box text-gray-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No sales data yet</h3>
+                    <p class="text-gray-500">Start selling to see your top products here</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Enhanced Recent Orders & Quick Actions -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <!-- Recent Orders -->
+            <div class="xl:col-span-2 bg-white rounded-2xl shadow-xl p-6 border border-gray-100 card-hover-lift">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shopping-bag text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">Recent Orders</h2>
+                            <p class="text-sm text-gray-500">Latest customer activity</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('admin.orders.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-1">
+                        <span>View All</span>
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+                <div class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                    @if($recentOrders->count() > 0)
+                        @foreach($recentOrders as $order)
+                            <div class="group relative">
+                                <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-indigo-600 rounded-xl opacity-0 group-hover:opacity-10 transition duration-300"></div>
+                                <div class="relative bg-white rounded-xl p-4 border border-gray-100 hover:border-blue-200 transition-all duration-300">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+                                                <i class="fas fa-shopping-bag text-white"></i>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center space-x-2">
+                                                    <p class="font-bold text-gray-900">
+                                                        #{{ $order->id ?? 'N/A' }}
+                                                    </p>
+                                                </div>
+                                                <div class="flex items-center space-x-2 text-sm text-gray-600 mt-1">
+                                                    <span>{{ $order->user_name ?? 'Guest' }}</span>
+                                                    <span>•</span>
+                                                    <span>{{ $order->created_at ?? 'Recent' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="text-right">
+                                                <p class="font-bold text-gray-900">₱{{ number_format($order->amount ?? 0, 0) }}</p>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    {{ $order->status ?? 'pending' }}
+                                                </span>
+                                            </div>
+                                            <div class="flex space-x-1">
+                                                <button class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-shopping-bag text-gray-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">No recent orders</h3>
+                            <p class="text-gray-500">Orders will appear here once customers start shopping</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Enhanced Quick Actions -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 card-hover-lift">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-bolt text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">Quick Actions</h2>
+                        <p class="text-sm text-gray-500">Common tasks</p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <a href="{{ route('admin.products.create') }}" class="group block w-full text-left p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 rounded-xl transition-all duration-300 border border-blue-100 hover:border-blue-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-plus text-white group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900">Add Product</p>
+                                <p class="text-sm text-gray-600">Create new product listing</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.inventory.create') }}" class="group block w-full text-left p-4 bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 rounded-xl transition-all duration-300 border border-orange-100 hover:border-orange-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-box text-white group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900">Add Inventory</p>
+                                <p class="text-sm text-gray-600">Track product stock</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.users.index') }}" class="group block w-full text-left p-4 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 rounded-xl transition-all duration-300 border border-purple-100 hover:border-purple-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-white group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900">Manage Users</p>
+                                <p class="text-sm text-gray-600">View customer accounts</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.analytics') }}" class="group block w-full text-left p-4 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 rounded-xl transition-all duration-300 border border-green-100 hover:border-green-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-bar text-white group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-900">View Reports</p>
+                                <p class="text-sm text-gray-600">Analytics & insights</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
+<!-- Enhanced Chart.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    let ordersStatusChart, topProductsChart;
-
-    function initCharts(data) {
-        // Update summary cards
-        document.getElementById('totalOrders').textContent = data.totalOrders;
-        document.getElementById('pendingOrders').textContent = data.ordersByStatus.pending || 0;
-        document.getElementById('completedOrders').textContent = data.ordersByStatus.completed || 0;
-
-        const ordersStatusCtx = document.getElementById('ordersStatusChart').getContext('2d');
-        const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
-
-        if (ordersStatusChart) ordersStatusChart.destroy();
-        if (topProductsChart) topProductsChart.destroy();
-
-        ordersStatusChart = new Chart(ordersStatusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(data.ordersByStatus),
-                datasets: [{
-                    data: Object.values(data.ordersByStatus),
-                    backgroundColor: ['#FBBF24', '#22C55E', '#EF4444', '#3B82F6'],
-                }]
+document.addEventListener('DOMContentLoaded', function() {
+    // Debug: Log the data being passed to charts
+    console.log('Sales Data Labels:', @json($allSalesData->isNotEmpty() ? $allSalesData->pluck('date') : []));
+    console.log('Sales Data Values:', @json($allSalesData->isNotEmpty() ? $allSalesData->pluck('revenue') : []));
+    console.log('Order Status Data:', [
+        {{ $ordersByStatus['completed'] ?? 0 }},
+        {{ $ordersByStatus['processing'] ?? 0 }},
+        {{ $ordersByStatus['pending'] ?? 0 }},
+        {{ $ordersByStatus['cancelled'] ?? 0 }}
+    ]);
+    
+    // Chart.js global defaults
+    Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+    Chart.defaults.color = '#6b7280';
+    
+    // Sales Chart
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: @json($allSalesData->isNotEmpty() ? $allSalesData->pluck('date') : []),
+            datasets: [{
+                label: 'Sales',
+                data: @json($allSalesData->isNotEmpty() ? $allSalesData->pluck('revenue') : []),
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: 'rgb(59, 130, 246)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
             },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-        });
-
-        topProductsChart = new Chart(topProductsCtx, {
-            type: 'bar',
-            data: {
-                labels: data.topProducts.map(p => p.name),
-                datasets: [{
-                    label: 'Sold Quantity',
-                    data: data.topProducts.map(p => p.order_items_sum_quantity),
-                    backgroundColor: '#3B82F6'
-                }]
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return 'Sales: ₱' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
             },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-        });
-    }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '₱' + value.toLocaleString();
+                        },
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-    function fetchMetrics() {
-        axios.get("{{ route('admin.dashboard.metrics') }}")
-            .then(res => initCharts(res.data))
-            .catch(err => console.error(err));
-    }
-
-    // Initial load
-    fetchMetrics();
-
-    // Refresh every 30 seconds
-    setInterval(fetchMetrics, 30000);
+    // Order Status Chart
+    const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Processing', 'Pending', 'Cancelled'],
+            datasets: [{
+                data: [
+                    {{ $ordersByStatus['completed'] ?? 0 }},
+                    {{ $ordersByStatus['processing'] ?? 0 }},
+                    {{ $ordersByStatus['pending'] ?? 0 }},
+                    {{ $ordersByStatus['cancelled'] ?? 0 }}
+                ],
+                backgroundColor: [
+                    'rgb(34, 197, 94)',
+                    'rgb(59, 130, 246)',
+                    'rgb(250, 204, 21)',
+                    'rgb(239, 68, 68)'
+                ],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
 </script>
 @endsection

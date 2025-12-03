@@ -134,6 +134,150 @@
                     </div>
                 </div>
 
+                <!-- Sandbox Payment Simulator -->
+                <div class="mt-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border-2 border-purple-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-purple-900">🧪 Test Mode</h3>
+                            <p class="text-sm text-purple-700">Test payments without real money</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Method Tabs -->
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="switchPaymentTab('gcash')" id="tab-gcash" class="flex-1 px-4 py-2 rounded-lg bg-purple-600 text-white font-medium text-sm">
+                            GCash
+                        </button>
+                        <button onclick="switchPaymentTab('card')" id="tab-card" class="flex-1 px-4 py-2 rounded-lg bg-purple-200 text-purple-700 font-medium text-sm">
+                            Credit Card
+                        </button>
+                    </div>
+
+                    <!-- GCash Sandbox -->
+                    <div id="sandbox-gcash" class="sandbox-content">
+                        <p class="text-sm text-purple-800 mb-4">
+                            Simulate a successful GCash payment instantly.
+                        </p>
+                        
+                        <form action="{{ route('payment.sandbox.gcash.simulate') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="order_id" value="{{ $order->id }}">
+                            <input type="hidden" name="amount" value="{{ $order->total_amount }}">
+                            
+                            <button type="submit" 
+                                    class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Pay with GCash (Test)
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Credit Card Sandbox -->
+                    <div id="sandbox-card" class="sandbox-content hidden">
+                        <p class="text-sm text-purple-800 mb-4">
+                            Use test card numbers to simulate different scenarios:
+                        </p>
+
+                        <!-- Test Cards Info -->
+                        <div class="bg-white rounded-lg p-4 mb-4 space-y-2 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">✅ Success:</span>
+                                <code class="bg-gray-100 px-2 py-1 rounded">4242 4242 4242 4242</code>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">❌ Declined:</span>
+                                <code class="bg-gray-100 px-2 py-1 rounded">4000 0000 0000 0002</code>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">⚠️ Insufficient:</span>
+                                <code class="bg-gray-100 px-2 py-1 rounded">4000 0000 0000 9995</code>
+                            </div>
+                            <div class="text-gray-500 text-center mt-2">
+                                CVV: Any 3 digits | Expiry: Any future date
+                            </div>
+                        </div>
+                        
+                        <form action="{{ route('payment.sandbox.card.simulate') }}" method="POST" id="cardTestForm">
+                            @csrf
+                            <input type="hidden" name="order_id" value="{{ $order->id }}">
+                            <input type="hidden" name="amount" value="{{ $order->total_amount }}">
+                            
+                            <div class="space-y-3 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-purple-900 mb-1">Card Number</label>
+                                    <input type="text" name="card_number" id="cardNumber" maxlength="19" placeholder="4242 4242 4242 4242"
+                                           class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                           required>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-purple-900 mb-1">Expiry</label>
+                                        <input type="text" name="expiry" placeholder="MM/YY" maxlength="5"
+                                               class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                               required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-purple-900 mb-1">CVV</label>
+                                        <input type="text" name="cvv" placeholder="123" maxlength="3"
+                                               class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                               required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-purple-900 mb-1">Cardholder Name</label>
+                                    <input type="text" name="card_name" placeholder="JOHN DOE"
+                                           class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                           required>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" 
+                                    class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                                Pay with Card (Test)
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-3 text-xs text-purple-600 text-center">
+                        ⚠️ Test mode - No real charges will be made
+                    </div>
+                </div>
+
+                <script>
+                function switchPaymentTab(method) {
+                    // Update tabs
+                    document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+                        tab.classList.remove('bg-purple-600', 'text-white');
+                        tab.classList.add('bg-purple-200', 'text-purple-700');
+                    });
+                    document.getElementById('tab-' + method).classList.remove('bg-purple-200', 'text-purple-700');
+                    document.getElementById('tab-' + method).classList.add('bg-purple-600', 'text-white');
+                    
+                    // Update content
+                    document.querySelectorAll('.sandbox-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById('sandbox-' + method).classList.remove('hidden');
+                }
+
+                // Format card number with spaces
+                document.getElementById('cardNumber')?.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\s/g, '');
+                    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                    e.target.value = formattedValue;
+                });
+                </script>
+
                 <!-- Action Button -->
                 <div class="mt-6">
                     <a href="{{ route('orders.show', $order->id) }}" 

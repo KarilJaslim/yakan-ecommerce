@@ -20,21 +20,20 @@ class TrackingController extends Controller
             'tracking_number' => 'required|string'
         ]);
 
-        $trackingNumber = $request->tracking_number;
+        return redirect()->route('track.show', $request->tracking_number);
+    }
 
-        // Fetch order for logged-in user
+    public function show(string $trackingNumber)
+    {
         $order = Order::where('tracking_number', $trackingNumber)
                       ->where('user_id', Auth::id())
                       ->first();
 
         if (!$order) {
-            return back()->with('error', 'Tracking number not found.');
+            return redirect()->route('track.index')->with('error', 'Tracking number not found.');
         }
 
-        // Decode JSON history, fallback to empty array
         $history = $order->tracking_history ? json_decode($order->tracking_history, true) : [];
-
-        // Include current status if not in history
         if (empty($history)) {
             $history[] = [
                 'status' => $order->tracking_status,
@@ -46,7 +45,8 @@ class TrackingController extends Controller
             'tracking' => [
                 'tracking_number' => $order->tracking_number,
                 'status' => $order->tracking_status,
-                'history' => $history
+                'history' => $history,
+                'order_id' => $order->id,
             ]
         ]);
     }

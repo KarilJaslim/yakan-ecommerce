@@ -9,9 +9,11 @@ class AdminCheck
 {
     public function handle($request, Closure $next)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
+        if (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role === 'admin') {
+            return $next($request);
         }
-        return $next($request);
+        
+        // If not admin, redirect to admin login
+        return redirect()->route('admin.login.form');
     }
 }

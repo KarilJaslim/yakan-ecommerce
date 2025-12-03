@@ -1,25 +1,39 @@
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+<?php
 
-return new class extends Migration {
-    public function up(): void
+namespace Database\Factories;
+
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+
+class UserFactory extends Factory
+{
+    protected $model = User::class;
+
+    public function definition(): array
     {
-        Schema::create('custom_orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
-            $table->text('specifications');
-            $table->string('design_upload')->nullable();
-            $table->integer('quantity')->default(1);
-            $table->enum('status', ['pending', 'approved', 'rejected', 'processing', 'completed', 'cancelled'])->default('pending');
-            $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending');
-            $table->timestamps();
-        });
+        return [
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'), // password
+            'role' => 'user',
+            'remember_token' => Str::random(10),
+        ];
     }
 
-    public function down(): void
+    public function admin(): static
     {
-        Schema::dropIfExists('custom_orders');
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
     }
-};
+
+    public function unverified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email_verified_at' => null,
+        ]);
+    }
+}

@@ -28,6 +28,7 @@ class ProductSeeder extends Seeder
                 'category_id' => $categories->where('name', 'Apparel')->first()->id ?? $categories->first()->id,
                 'image' => 'products/yakan-shirt.jpg',
                 'is_active' => true,
+                'status' => 'active',
             ],
             [
                 'name' => 'Yakan Bag',
@@ -37,6 +38,7 @@ class ProductSeeder extends Seeder
                 'category_id' => $categories->where('name', 'Accessories')->first()->id ?? $categories->first()->id,
                 'image' => 'products/yakan-bag.jpg',
                 'is_active' => true,
+                'status' => 'active',
             ],
             [
                 'name' => 'Yakan Earrings',
@@ -46,6 +48,7 @@ class ProductSeeder extends Seeder
                 'category_id' => $categories->where('name', 'Accessories')->first()->id ?? $categories->first()->id,
                 'image' => 'products/yakan-earrings.jpg',
                 'is_active' => true,
+                'status' => 'active',
             ],
             [
                 'name' => 'Yakan Basket',
@@ -55,6 +58,7 @@ class ProductSeeder extends Seeder
                 'category_id' => $categories->where('name', 'Home & Living')->first()->id ?? $categories->first()->id,
                 'image' => 'products/yakan-basket.jpg',
                 'is_active' => true,
+                'status' => 'active',
             ],
         ];
 

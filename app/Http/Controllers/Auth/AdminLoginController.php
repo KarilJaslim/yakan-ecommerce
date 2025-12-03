@@ -11,6 +11,8 @@ class AdminLoginController extends Controller
     // Show the admin login form
     public function showLoginForm()
     {
+        // Clear any intended URL that might be from previous attempts
+        session()->forget('url.intended');
         return view('auth.admin-login'); // Make sure this blade exists
     }
 
@@ -27,8 +29,29 @@ class AdminLoginController extends Controller
 
         // Attempt login using the 'admin' guard
         if (Auth::guard('admin')->attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('admin.dashboard');
+            $user = Auth::guard('admin')->user();
+            
+            // Check if user has admin role
+            if ($user && $user->role === 'admin') {
+                $request->session()->regenerate();
+                
+                // Clear any existing web guard session to prevent conflicts
+                Auth::guard('web')->logout();
+                
+                // Set the intended URL explicitly to admin dashboard
+                session()->put('url.intended', '/admin/dashboard');
+                
+                // Force redirect to admin dashboard
+                \Log::info('Admin login successful, redirecting to: /admin/dashboard');
+                \Log::info('Current auth guards: web=' . (Auth::guard('web')->check() ? 'true' : 'false') . ', admin=' . (Auth::guard('admin')->check() ? 'true' : 'false'));
+                return redirect('/admin/dashboard')->with('success', 'Welcome back, Admin!');
+            }
+            
+            // Logout if not admin
+            Auth::guard('admin')->logout();
+            return back()->withErrors([
+                'email' => 'Access denied. Admin privileges required.',
+            ])->onlyInput('email');
         }
 
         return back()->withErrors([

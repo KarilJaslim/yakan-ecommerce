@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -16,15 +17,12 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
-        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        $status = $request->filled('status') ? $request->status : 'active';
+        $query->where('status', $status);
 
         $products = $query->latest()->paginate(10);
 
@@ -36,7 +34,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create');
+        $categories = \App\Models\Category::orderBy('name')->get();
+        return view('admin.products.create', compact('categories'));
     }
 
     /**
@@ -52,6 +51,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:active,inactive',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         // Handle image upload
@@ -68,6 +68,7 @@ class ProductController extends Controller
             'description' => $request->description,
             'image' => $imagePath,
             'status' => $request->status,
+            'category_id' => $request->category_id,
         ]);
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
@@ -78,7 +79,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with('inventory')->findOrFail($id);
         return view('admin.products.show', compact('product'));
     }
 
@@ -87,8 +88,9 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        $product = Product::findOrFail($id);
-        return view('admin.products.edit', compact('product'));
+        $product = Product::with('inventory')->findOrFail($id);
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
     /**
@@ -135,15 +137,48 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        $product = Product::findOrFail($id);
+        try {
+            $product = Product::findOrFail($id);
+            $productName = $product->name;
 
-        // Delete image if exists
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+            // Delete associated image if exists
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            // Delete related records (optional - depends on your foreign key constraints)
+            // If you have cascade delete set up in migrations, this is automatic
+            // Otherwise, manually delete related records:
+            // $product->orderItems()->delete();
+            // $product->reviews()->delete();
+            // $product->inventory()->delete();
+
+            // Delete the product
+            $product->delete();
+
+            // Check if request expects JSON (AJAX request)
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Product '{$productName}' has been deleted successfully."
+                ]);
+            }
+
+            return redirect()->route('admin.products.index')
+                           ->with('success', "Product '{$productName}' deleted successfully.");
+                           
+        } catch (\Exception $e) {
+            \Log::error('Product deletion error: ' . $e->getMessage());
+            
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete product. ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->route('admin.products.index')
+                           ->with('error', 'Failed to delete product.');
         }
-
-        $product->delete();
-
-        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 }

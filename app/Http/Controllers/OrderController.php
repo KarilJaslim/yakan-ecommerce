@@ -14,12 +14,17 @@ use App\Models\User;
 class OrderController extends Controller
 {
     /**
-     * Admin: List all orders
+     * User: List only the authenticated user's orders
      */
     public function index()
     {
-        $orders = Order::with('orderItems.product', 'user')->get();
-        return view('admin.orders.index', compact('orders'));
+        $user = auth()->user();
+        $orders = Order::with('orderItems.product')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        return view('orders.index', compact('orders'));
     }
 
     /**

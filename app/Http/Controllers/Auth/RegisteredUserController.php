@@ -29,29 +29,47 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-    
-        // Create user with default role 'user'
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'user', // ensure every new user is a regular user
-        ]);
-    
-        event(new Registered($user));
-    
-        Auth::login($user);
-    
-        // Redirect based on role
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->route('dashboard'); // regular users
+        try {
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'middle_initial' => 'nullable|string|max:1',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:6|confirmed',
+            ]);
+        
+            \Log::info('Registration attempt', ['email' => $validated['email']]);
+        
+            $user = User::create([
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'middle_initial' => $validated['middle_initial'] ?? null,
+                'name' => trim($validated['first_name'] . ' ' . $validated['last_name']),
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'user',
+                'email_verified_at' => now(), // Auto-verify for now
+            ]);
+            
+            \Log::info('User created successfully', ['user_id' => $user->id]);
+            
+            Auth::login($user);
+            
+            \Log::info('User logged in', ['user_id' => $user->id]);
+        
+            // Always redirect to home/welcome for regular users
+            return redirect()->route('welcome')
+                ->with('success', 'Account created successfully! Welcome to Yakan!');
+                
+        } catch (\Exception $e) {
+            \Log::error('Registration error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()
+                ->withInput($request->except('password', 'password_confirmation'))
+                ->with('error', 'Registration failed. Please try again.');
         }
     }
     

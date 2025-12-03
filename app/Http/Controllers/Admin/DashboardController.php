@@ -4,72 +4,149 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Import DB facade
+use Illuminate\Support\Facades\DB;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\User;
+use App\Models\CustomOrder;
 
 class DashboardController extends Controller
 {
+    /**
+     * Test method to isolate controller issues
+     */
+    public function test()
+    {
+        return 'DashboardController test method works!';
+    }
+
     /**
      * Show the admin dashboard page.
      */
     public function index()
     {
-        // Total orders
-        $totalOrders = Order::count();
+        try {
+            $totalOrders = \App\Models\Order::count();
+            $pendingOrders = \App\Models\Order::where('status', 'pending')->count();
+            $completedOrders = \App\Models\Order::where('status', 'completed')->count();
+            $totalUsers = \App\Models\User::count();
+            $totalRevenue = (float) \App\Models\Order::where('status', 'completed')->sum('total_amount');
 
-        // Orders grouped by status
-        $ordersByStatus = Order::select('status', DB::raw('count(*) as total'))
-                                ->groupBy('status')
-                                ->pluck('total', 'status')
-                                ->toArray();
+            $recentOrders = \App\Models\Order::with('user')
+                ->orderByDesc('created_at')
+                ->take(10)
+                ->get();
 
-        // Top 5 products based on quantity sold
-        $topProducts = Product::withSum('orderItems', 'quantity') // Make sure Product model has orderItems() relation
-                              ->orderByDesc('order_items_sum_quantity')
-                              ->limit(5)
-                              ->get(['id', 'name']);
+            $recentUsers = \App\Models\User::orderByDesc('created_at')->take(10)->get();
 
-        // Latest orders with related user and order items
-        $orders = Order::with(['user', 'orderItems.product']) // Make sure Order model has orderItems() relation
-                       ->orderBy('created_at', 'desc')
-                       ->get();
+            $ordersByStatus = \App\Models\Order::selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status');
 
-        // Pending and completed orders for dashboard cards
-        $pendingOrders = $ordersByStatus['pending'] ?? 0;
-        $completedOrders = $ordersByStatus['completed'] ?? 0;
+            $totalProducts = \App\Models\Product::count();
 
-        return view('admin.dashboard', compact(
-            'totalOrders',
-            'pendingOrders',
-            'completedOrders',
-            'orders',
-            'topProducts',
-            'ordersByStatus'
-        ));
+            // Top products by sold quantity
+            $topProducts = \App\Models\OrderItem::selectRaw('product_id, SUM(quantity) as sold')
+                ->groupBy('product_id')
+                ->orderByDesc('sold')
+                ->with('product')
+                ->take(5)
+                ->get();
+
+            // Basic sales data for the last 30 days
+            $allSalesData = \App\Models\Order::where('created_at', '>=', now()->subDays(30))
+                ->where('status', 'completed')
+                ->selectRaw('DATE(created_at) as date, SUM(total_amount) as revenue, COUNT(*) as orders')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+
+            return view('admin.dashboard', compact(
+                'totalOrders',
+                'pendingOrders',
+                'completedOrders',
+                'totalUsers',
+                'totalRevenue',
+                'recentOrders',
+                'recentUsers',
+                'ordersByStatus',
+                'totalProducts',
+                'topProducts',
+                'allSalesData'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Dashboard index error: ' . $e->getMessage());
+            
+            // Return simple error message
+            return 'Dashboard error: ' . $e->getMessage();
+        }
     }
 
     /**
      * Return metrics JSON for dashboard charts (Axios API).
      */
-    public function metrics()
+    public function metrics(\Illuminate\Http\Request $request)
     {
-        $totalOrders = Order::count();
+        try {
+            $period = (int) ($request->get('period', 30));
+            $start = now()->subDays($period);
 
-        $ordersByStatus = Order::select('status', DB::raw('count(*) as total'))
-                                ->groupBy('status')
-                                ->pluck('total', 'status')
-                                ->toArray();
+            $totalOrders = \App\Models\Order::count();
+            $ordersByStatus = \App\Models\Order::selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status');
+            $topProducts = \App\Models\OrderItem::selectRaw('product_id, SUM(quantity) as sold')
+                ->groupBy('product_id')
+                ->orderByDesc('sold')
+                ->with('product:id,name')
+                ->take(5)
+                ->get()
+                ->map(function ($row) {
+                    return [
+                        'name' => optional($row->product)->name ?? 'Product '.$row->product_id,
+                        'sold' => (int) $row->sold,
+                    ];
+                });
+            $totalUsers = \App\Models\User::count();
+            $totalRevenue = (float) \App\Models\Order::where('status', 'completed')->sum('total_amount');
 
-        $topProducts = Product::withSum('orderItems', 'quantity')
-                              ->orderByDesc('order_items_sum_quantity')
-                              ->limit(5)
-                              ->get(['id', 'name', 'order_items_sum_quantity']);
+            $series = \App\Models\Order::where('created_at', '>=', $start)
+                ->where('status', 'completed')
+                ->selectRaw('DATE(created_at) as date, SUM(total_amount) as revenue')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
 
-        return response()->json([
-            'totalOrders' => $totalOrders,
-            'ordersByStatus' => $ordersByStatus,
-            'topProducts' => $topProducts,
-        ]);
+            return response()->json([
+                'totalOrders' => $totalOrders,
+                'ordersByStatus' => $ordersByStatus,
+                'topProducts' => $topProducts,
+                'totalUsers' => $totalUsers,
+                'totalRevenue' => $totalRevenue,
+                'salesLabels' => $series->pluck('date'),
+                'salesValues' => $series->pluck('revenue'),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Dashboard metrics error: ' . $e->getMessage());
+            return response()->json(['error' => 'Unable to load metrics'], 500);
+        }
+    }
+
+    /**
+     * Analytics & Reports page
+     */
+    public function analytics()
+    {
+        try {
+            return view('admin.analytics.index', [
+                'salesData' => collect([]),
+                'userGrowth' => collect([]),
+                'productPerformance' => collect([])
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Analytics error: ' . $e->getMessage());
+            return redirect()->route('admin.dashboard')->with('error', 'Unable to load analytics.');
+        }
     }
 }

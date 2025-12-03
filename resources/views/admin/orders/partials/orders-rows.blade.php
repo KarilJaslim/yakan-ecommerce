@@ -13,7 +13,6 @@
     <td class="py-3 px-4">
         <form action="{{ route('admin.orders.quickUpdateStatus', $order->id) }}" method="POST">
             @csrf
-            @method('PUT')
             <select name="status" class="border rounded px-2 py-1 w-full" onchange="this.form.submit()">
                 <option value="pending" {{ $order->status=='pending'?'selected':'' }}>Pending</option>
                 <option value="processing" {{ $order->status=='processing'?'selected':'' }}>Processing</option>

@@ -10,10 +10,10 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         Category::insert([
-            ['name' => 'Apparel'],
-            ['name' => 'Electronics'],
-            ['name' => 'Accessories'],
-            ['name' => 'Home & Living'],
+            ['name' => 'Apparel', 'slug' => 'apparel'],
+            ['name' => 'Electronics', 'slug' => 'electronics'],
+            ['name' => 'Accessories', 'slug' => 'accessories'],
+            ['name' => 'Home & Living', 'slug' => 'home-living'],
         ]);
     }
 }

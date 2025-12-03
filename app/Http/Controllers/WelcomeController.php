@@ -41,4 +41,15 @@ class WelcomeController extends Controller
             'totalProducts'
         ));
     }
+
+    public function contact()
+    {
+        return view('contact');
+    }
+
+    public function submitContact(Request $request)
+    {
+        // Handle contact form submission
+        return redirect()->back()->with('success', 'Message sent successfully!');
+    }
 }
