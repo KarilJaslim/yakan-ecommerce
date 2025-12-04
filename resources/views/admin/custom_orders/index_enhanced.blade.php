@@ -74,7 +74,7 @@
             <p class="text-gray-600 mt-1">Manage and track custom order requests</p>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('custom_orders.production-dashboard') }}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+            <a href="{{ route('admin.custom_orders.production-dashboard') }}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
                 Production Dashboard
             </a>
         </div>

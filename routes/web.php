@@ -828,6 +828,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
 
     // Custom Orders Management
     Route::get('custom-orders', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'index'])->name('custom_orders.index');
+    Route::get('custom-orders/{order}', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'show'])->name('custom_orders.show');
     Route::post('custom-orders/{order}/update-status', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'updateStatus'])->name('custom_orders.update_status');
     Route::post('custom-orders/{order}/quote-price', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'quotePrice'])->name('custom_orders.quote_price');
     Route::post('custom-orders/{order}/reject', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'rejectOrder'])->name('custom_orders.reject');
