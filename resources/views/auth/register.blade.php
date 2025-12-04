@@ -437,7 +437,7 @@
                                     type="password" 
                                     name="password" 
                                     class="auth-input" 
-                                    placeholder="Password"
+                                    placeholder="Password (min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special)"
                                     required
                                     autocomplete="new-password"
                                     oninput="checkPasswordStrength(this.value)"
@@ -449,6 +449,9 @@
                                 </label>
                                 <div class="password-strength">
                                     <div id="password-strength-bar" class="password-strength-bar"></div>
+                                </div>
+                                <div class="text-xs text-gray-600 mt-1">
+                                    Must contain: 8+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special (@$!%*#?&)
                                 </div>
                             </div>
 
@@ -555,11 +558,12 @@ function checkPasswordStrength(password) {
         const strengthBar = document.getElementById('password-strength-bar');
         let strength = 0;
         
+        // Check all requirements
         if (password.length >= 8) strength++;
-        if (password.match(/[a-z]/)) strength++;
-        if (password.match(/[A-Z]/)) strength++;
-        if (password.match(/[0-9]/)) strength++;
-        if (password.match(/[^a-zA-Z0-9]/)) strength++;
+        if (password.match(/[a-z]/)) strength++; // lowercase
+        if (password.match(/[A-Z]/)) strength++; // uppercase
+        if (password.match(/[0-9]/)) strength++; // number
+        if (password.match(/[@$!%*#?&]/)) strength++; // special character
         
         strengthBar.className = 'password-strength-bar';
         

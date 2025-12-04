@@ -5,45 +5,85 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
-    // Show login form (optional, since you have a Blade template)
-    public function showLoginForm()
-    {
-        return view('auth.login'); // Make sure your Blade file is at resources/views/auth/login.blade.php
-    }
-
-    // Handle login
+    // API Login
     public function login(Request $request)
     {
-        // Validate input
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
         ]);
 
-        // Attempt login
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
+        try {
+            // Attempt login
+            if (!Auth::attempt($request->only('email', 'password'))) {
+                return response()->json([
+                    'message' => 'Invalid email or password'
+                ], 401);
+            }
 
-            // Redirect based on role or default
-            return redirect()->intended('/dashboard'); // or wherever
+            $user = Auth::user();
+
+            if (!$user) {
+                Log::error('Login failed: Auth::user() returned null', [
+                    'input' => $request->all()
+                ]);
+                return response()->json([
+                    'message' => 'User not found'
+                ], 500);
+            }
+
+            // Check if email is verified
+            if (!$user->hasVerifiedEmail()) {
+                return response()->json([
+                    'message' => 'Please verify your email before logging in'
+                ], 403);
+            }
+
+            // Create token (Sanctum)
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            if (!$token) {
+                Log::error('Login failed: createToken returned null', [
+                    'user' => $user
+                ]);
+                return response()->json([
+                    'message' => 'Token generation failed'
+                ], 500);
+            }
+
+            return response()->json([
+                'message' => 'Login successful',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Login API Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all()
+            ]);
+
+            return response()->json([
+                'message' => 'Server error, check logs'
+            ], 500);
         }
-
-        // Failed login
-        throw ValidationException::withMessages([
-            'email' => __('The provided credentials do not match our records.'),
-        ]);
     }
 
-    // Logout
+    // API Logout
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/login');
+        $user = $request->user();
+        if ($user) {
+            $user->tokens()->delete(); // Revoke all tokens
+        }
+
+        return response()->json([
+            'message' => 'Logged out successfully'
+        ], 200);
     }
 }

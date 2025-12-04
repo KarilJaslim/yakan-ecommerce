@@ -35,7 +35,20 @@ class RegisteredUserController extends Controller
                 'last_name' => 'required|string|max:255',
                 'middle_initial' => 'nullable|string|max:1',
                 'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:6|confirmed',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    'confirmed',
+                    'regex:/[a-z]/',      // at least one lowercase
+                    'regex:/[A-Z]/',      // at least one uppercase
+                    'regex:/[0-9]/',      // at least one number
+                    'regex:/[@$!%*#?&]/', // at least one special character
+                ],
+            ], [
+                'password.regex' => 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (@$!%*#?&).',
+                'password.min' => 'Password must be at least 8 characters long.',
+                'password.confirmed' => 'Password confirmation does not match.',
             ]);
         
             \Log::info('Registration attempt', ['email' => $validated['email']]);
@@ -48,18 +61,19 @@ class RegisteredUserController extends Controller
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'role' => 'user',
-                'email_verified_at' => now(), // Auto-verify for now
+                // Remove auto-verification - require email verification
             ]);
             
             \Log::info('User created successfully', ['user_id' => $user->id]);
             
-            Auth::login($user);
+            // Trigger email verification event
+            event(new Registered($user));
             
-            \Log::info('User logged in', ['user_id' => $user->id]);
+            \Log::info('Email verification event triggered', ['user_id' => $user->id]);
         
-            // Always redirect to home/welcome for regular users
-            return redirect()->route('welcome')
-                ->with('success', 'Account created successfully! Welcome to Yakan!');
+            // Redirect to email verification notice instead of auto-login
+            return redirect()->route('verification.notice')
+                ->with('success', 'Account created successfully! Please check your email to verify your account.');
                 
         } catch (\Exception $e) {
             \Log::error('Registration error', [

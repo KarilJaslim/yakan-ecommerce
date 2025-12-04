@@ -112,7 +112,8 @@ class CustomOrder extends Model
     protected static function booted()
     {
         static::addGlobalScope('withRelations', function ($query) {
-            $query->with(['product:id,name,price,image', 'user:id,name,email']);
+            // Only load essential relationships by default
+            $query->with(['user:id,name,email', 'product:id,name,price,image']);
         });
     }
 

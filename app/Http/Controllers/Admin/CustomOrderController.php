@@ -19,7 +19,7 @@ class CustomOrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = CustomOrder::with(['user', 'product'])
+        $query = CustomOrder::with(['user:id,name,email', 'product:id,name,price,image'])
             ->orderBy('created_at', 'desc');
 
         // Filter by status
@@ -38,24 +38,35 @@ class CustomOrderController extends Controller
 
         $orders = $query->paginate($request->get('per_page', 20));
 
-        // Calculate enhanced statistics
-        $statistics = [
-            'totalOrders' => CustomOrder::count(),
-            'todayOrders' => CustomOrder::whereDate('created_at', today())->count(),
-            'pendingCount' => CustomOrder::where('status', 'pending')->count(),
-            'processingCount' => CustomOrder::where('status', 'processing')->count(),
-            'completedCount' => CustomOrder::where('status', 'completed')->count(),
-            'totalRevenue' => CustomOrder::where('payment_status', 'paid')->sum('final_price'),
-            'avgProcessingTime' => $this->calculateAverageProcessingTime(),
-            'urgentOrders' => CustomOrder::where('status', 'pending')
-                ->where('created_at', '<', now()->subDays(3))
-                ->count(),
-        ];
+        // Calculate enhanced statistics efficiently
+        $statistics = CustomOrder::selectRaw('
+            COUNT(*) as total_orders,
+            COUNT(CASE WHEN DATE(created_at) = CURDATE() THEN 1 END) as today_orders,
+            COUNT(CASE WHEN status = "pending" THEN 1 END) as pending_count,
+            COUNT(CASE WHEN status = "processing" THEN 1 END) as processing_count,
+            COUNT(CASE WHEN status = "completed" THEN 1 END) as completed_count,
+            COALESCE(SUM(CASE WHEN payment_status = "paid" THEN final_price ELSE 0 END), 0) as total_revenue,
+            COUNT(CASE WHEN status = "pending" AND created_at < DATE_SUB(NOW(), INTERVAL 3 DAY) THEN 1 END) as urgent_orders
+        ')->first();
+
+        $avgProcessingTime = CustomOrder::whereNotNull('approved_at')
+            ->whereNotNull('created_at')
+            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, approved_at)) as avg_hours')
+            ->first();
 
         return response()->json([
             'success' => true,
             'data' => $orders,
-            'statistics' => $statistics,
+            'statistics' => [
+                'totalOrders' => $statistics->total_orders,
+                'todayOrders' => $statistics->today_orders,
+                'pendingCount' => $statistics->pending_count,
+                'processingCount' => $statistics->processing_count,
+                'completedCount' => $statistics->completed_count,
+                'totalRevenue' => $statistics->total_revenue,
+                'avgProcessingTime' => round($avgProcessingTime->avg_hours ?? 0, 1),
+                'urgentOrders' => $statistics->urgent_orders,
+            ],
             'message' => 'Custom orders retrieved successfully'
         ]);
     }
@@ -65,7 +76,7 @@ class CustomOrderController extends Controller
      */
     public function showIndex(Request $request)
     {
-        $query = CustomOrder::with(['user', 'product'])
+        $query = CustomOrder::with(['user:id,name,email', 'product:id,name,price,image'])
             ->orderBy('created_at', 'desc');
 
         // Apply filters
@@ -83,18 +94,28 @@ class CustomOrderController extends Controller
 
         $orders = $query->paginate($request->get('per_page', 20));
 
-        // Calculate statistics for the view
-        $totalOrders = CustomOrder::count();
-        $todayOrders = CustomOrder::whereDate('created_at', today())->count();
-        $pendingCount = CustomOrder::where('status', 'pending')->count();
-        $processingCount = CustomOrder::where('status', 'processing')->count();
-        $completedCount = CustomOrder::where('status', 'completed')->count();
-        $totalRevenue = CustomOrder::where('payment_status', 'paid')->sum('final_price') ?? 0;
+        // Calculate statistics efficiently using a single query
+        $statistics = CustomOrder::selectRaw('
+            COUNT(*) as total_orders,
+            COUNT(CASE WHEN DATE(created_at) = CURDATE() THEN 1 END) as today_orders,
+            COUNT(CASE WHEN status = "pending" THEN 1 END) as pending_count,
+            COUNT(CASE WHEN status = "processing" THEN 1 END) as processing_count,
+            COUNT(CASE WHEN status = "completed" THEN 1 END) as completed_count,
+            COALESCE(SUM(CASE WHEN payment_status = "paid" THEN final_price ELSE 0 END), 0) as total_revenue
+        ')->first();
+
+        // Extract statistics for the view
+        $totalOrders = $statistics->total_orders;
+        $todayOrders = $statistics->today_orders;
+        $pendingCount = $statistics->pending_count;
+        $processingCount = $statistics->processing_count;
+        $completedCount = $statistics->completed_count;
+        $totalRevenue = $statistics->total_revenue;
 
         return view('admin.custom_orders.index_enhanced', compact(
             'orders',
             'totalOrders',
-            'todayOrders',
+            'todayOrders', 
             'pendingCount',
             'processingCount',
             'completedCount',

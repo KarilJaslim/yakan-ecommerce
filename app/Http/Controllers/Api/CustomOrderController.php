@@ -8,6 +8,7 @@ use App\Models\CustomOrder;
 use App\Services\CustomOrder\CustomOrderService;
 use App\Services\CustomOrder\CustomOrderValidationService;
 use App\Services\ReplicateService;
+use App\Services\Upload\SecureFileUploadService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -33,17 +34,15 @@ class CustomOrderController
     public function index(Request $request)
     {
         try {
-            $page = $request->get('page', 1);
-            $perPage = $request->get('per_page', 10);
-            
-            // For testing purposes, return empty result if not authenticated
             if (!Auth::check()) {
                 return response()->json([
-                    'success' => true,
-                    'data' => [],
-                    'message' => 'No custom orders found (not authenticated)'
-                ]);
+                    'success' => false,
+                    'message' => 'Authentication required to access custom orders'
+                ], 401);
             }
+
+            $page = $request->get('page', 1);
+            $perPage = $request->get('per_page', 10);
             
             $result = $this->customOrderService->getUserCustomOrders(
                 Auth::id(), 
@@ -98,40 +97,16 @@ class CustomOrderController
     public function store(Request $request)
     {
         try {
-            $data = $request->all();
-            
-            // For testing purposes, allow unauthenticated requests
-            $userId = Auth::id() ?: null;
-            
-            // If not authenticated, create a simple custom order directly
-            if (!$userId) {
-                $customOrder = new \App\Models\CustomOrder();
-                $customOrder->user_id = null;
-                $customOrder->product_type = $data['product_type'] ?? 'Custom Product';
-                $customOrder->specifications = $data['specifications'] ?? '';
-                $customOrder->quantity = $data['quantity'] ?? 1;
-                $customOrder->budget_range = $data['budget_range'] ?? '';
-                $customOrder->primary_color = $data['primary_color'] ?? '';
-                $customOrder->secondary_color = $data['secondary_color'] ?? '';
-                $customOrder->accent_color = $data['accent_color'] ?? '';
-                $customOrder->dimensions = $data['dimensions'] ?? '';
-                $customOrder->phone = $data['phone'] ?? '';
-                $customOrder->email = $data['email'] ?? '';
-                $customOrder->delivery_address = $data['delivery_address'] ?? '';
-                $customOrder->additional_notes = $data['additional_notes'] ?? '';
-                $customOrder->urgency = $data['urgency'] ?? 'normal';
-                $customOrder->estimated_price = $data['estimated_price'] ?? 0;
-                $customOrder->status = 'pending';
-                $customOrder->save();
-                
+            if (!Auth::check()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Custom order created successfully',
-                    'data' => $customOrder
-                ], 201);
+                    'success' => false,
+                    'message' => 'Authentication required to create custom orders'
+                ], 401);
             }
+
+            $data = $request->all();
+            $userId = Auth::id();
             
-            // Use the service for authenticated users
             $result = $this->customOrderService->createCustomOrder($data, $userId);
             
             if (!$result['success']) {

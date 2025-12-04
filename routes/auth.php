@@ -16,12 +16,14 @@ Route::middleware('guest')->group(function () {
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store'])
+        ->middleware('auth.rate.limit:3,5') // 3 attempts per 5 minutes
         ->name('register.store');
 
     Route::get('login', [AuthenticatedSessionController::class, 'createUser'])
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'storeUser']);
+    Route::post('login', [AuthenticatedSessionController::class, 'storeUser'])
+        ->middleware('auth.rate.limit:5,1', 'account.lockout:5,15'); // 5 attempts, 15 minute lockout
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

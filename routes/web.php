@@ -489,6 +489,16 @@ Route::middleware(['auth'])->prefix('custom-orders')->name('custom_orders.')->gr
         return 'Auth test works! User ID: ' . auth()->id();
     });
     
+    // Test route for debugging 419 error
+    Route::post('/test-csrf', function() {
+        return response()->json(['success' => true, 'message' => 'CSRF test passed']);
+    })->name('test.csrf');
+    
+    // Test GET route to bypass CSRF
+    Route::get('/test-get', function() {
+        return response()->json(['success' => true, 'message' => 'GET test passed']);
+    })->name('test.get');
+    
     // Pattern/Fabric Design Flow
     Route::get('/create/step1', [\App\Http\Controllers\CustomOrderController::class, 'createStep1'])->name('create.step1');
     Route::post('/create/step1', [\App\Http\Controllers\CustomOrderController::class, 'storeStep1'])->name('store.step1');
@@ -562,6 +572,11 @@ Route::get('/track', function() {
 });
 Route::get('/track/{trackingNumber}', function($trackingNumber) {
     return redirect()->route('track-order.show', $trackingNumber);
+});
+
+// Simple test route at the top level (no middleware)
+Route::get('/simple-test', function() {
+    return response()->json(['success' => true, 'message' => 'Simple test works']);
 });
 
 // Isolated test route - no middleware, no admin prefix
@@ -833,6 +848,9 @@ Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(functi
     Route::post('custom-orders/create/pattern', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'storePatternSelection'])->name('custom_orders.store.pattern');
     Route::get('custom-orders/create/review', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'createReview'])->name('custom_orders.create.review');
     Route::post('custom-orders', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'store'])->name('custom_orders.store');
+    
+    // Production Dashboard
+    Route::get('custom-orders/production-dashboard', [App\Http\Controllers\Admin\AdminCustomOrderController::class, 'productionDashboard'])->name('custom_orders.production-dashboard');
 });
 
 /*

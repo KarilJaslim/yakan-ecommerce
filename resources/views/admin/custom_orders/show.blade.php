@@ -72,25 +72,29 @@
                         </div>
                         <div class="mt-2 text-gray-800">
                             @if($order->isFabricOrder())
-                                <div class="space-y-2">
-                                    <div>
-                                        <span class="text-sm font-medium text-purple-900">Fabric Type:</span>
-                                        <span class="text-sm text-gray-700 ml-2">{{ $order->fabric_type }}</span>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                        <span class="text-sm font-semibold text-purple-900 w-32">Fabric Type:</span>
+                                        <span class="text-sm text-gray-800 font-medium">{{ $order->fabric_type }}</span>
                                     </div>
-                                    <div>
-                                        <span class="text-sm font-medium text-purple-900">Intended Use:</span>
-                                        <span class="text-sm text-gray-700 ml-2">{{ $order->intended_use_label }}</span>
+                                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                        <span class="text-sm font-semibold text-purple-900 w-32">Quantity:</span>
+                                        <span class="text-sm text-gray-800 font-medium bg-purple-50 px-2 py-1 rounded">{{ $order->formatted_fabric_quantity }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                        <span class="text-sm font-semibold text-purple-900 w-32">Intended Use:</span>
+                                        <span class="text-sm text-gray-800 font-medium">{{ $order->intended_use_label }}</span>
                                     </div>
                                     @if($order->fabric_specifications)
-                                        <div>
-                                            <span class="text-sm font-medium text-purple-900">Specifications:</span>
-                                            <p class="text-sm text-gray-700 mt-1">{{ $order->fabric_specifications }}</p>
+                                        <div class="py-2">
+                                            <span class="text-sm font-semibold text-purple-900 block mb-2">Specifications:</span>
+                                            <p class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{{ $order->fabric_specifications }}</p>
                                         </div>
                                     @endif
                                     @if($order->special_requirements)
-                                        <div>
-                                            <span class="text-sm font-medium text-purple-900">Special Requirements:</span>
-                                            <p class="text-sm text-gray-700 mt-1">{{ $order->special_requirements }}</p>
+                                        <div class="py-2">
+                                            <span class="text-sm font-semibold text-purple-900 block mb-2">Special Requirements:</span>
+                                            <p class="text-sm text-gray-700 bg-yellow-50 p-3 rounded-lg">{{ $order->special_requirements }}</p>
                                         </div>
                                     @endif
                                 </div>

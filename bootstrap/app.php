@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->alias([
             'auth' => \App\Http\Middleware\Authenticate::class,
+            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'auth.rate.limit' => \App\Http\Middleware\AuthRateLimit::class,
+            'account.lockout' => \App\Http\Middleware\AccountLockout::class,
+            '2fa.required' => \App\Http\Middleware\RequireTwoFactor::class,
             'rate.limit' => \App\Http\Middleware\RateLimit::class,
         ]);
     })

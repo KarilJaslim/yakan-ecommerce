@@ -469,13 +469,6 @@ class CustomOrderController extends Controller
         try {
             \Log::info('createStep1 called', ['user_id' => auth()->id()]);
             
-            // Clear any existing incomplete wizard session and create fresh start
-            if ($request->session()->has('wizard')) {
-                $this->backupWizardSession($request, 'step1_restart');
-                $request->session()->forget('wizard');
-                \Log::info('Cleared existing wizard session for fresh start');
-            }
-
             // Test basic database connection
             try {
                 \DB::connection()->getPdo();

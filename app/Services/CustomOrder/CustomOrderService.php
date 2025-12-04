@@ -5,6 +5,7 @@ namespace App\Services\CustomOrder;
 use App\Models\CustomOrder;
 use App\Models\Product;
 use App\Models\Category;
+use App\Services\Upload\SecureFileUploadService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -15,6 +16,12 @@ use Illuminate\Support\Facades\Log;
 
 class CustomOrderService
 {
+    private SecureFileUploadService $secureUploadService;
+
+    public function __construct(SecureFileUploadService $secureUploadService)
+    {
+        $this->secureUploadService = $secureUploadService;
+    }
     /**
      * Get catalog data with caching
      */
@@ -75,51 +82,21 @@ class CustomOrderService
     }
 
     /**
-     * Upload design file
+     * Upload design file securely
      */
     public function uploadDesign(UploadedFile $file): array
     {
-        $validator = Validator::make(['file' => $file], [
-            'file' => [
-                'required',
-                'file',
-                'mimes:' . env('ALLOWED_FILE_TYPES', 'jpg,jpeg,png,pdf,doc,docx'),
-                'max:' . env('MAX_FILE_SIZE', 5120)
-            ]
-        ]);
-
-        if ($validator->fails()) {
-            return [
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ];
-        }
-
         try {
-            $filename = 'design_' . time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('custom_orders/temp_designs', $filename, 'public');
-
-            return [
-                'success' => true,
-                'data' => [
-                    'filename' => $filename,
-                    'path' => $path,
-                    'url' => Storage::url($path),
-                    'size' => $file->getSize(),
-                    'mime_type' => $file->getMimeType()
-                ],
-                'message' => 'Design uploaded successfully'
-            ];
+            return $this->secureUploadService->uploadFile($file, 'custom_orders/designs');
         } catch (\Exception $e) {
-            Log::error('Design upload failed', [
+            Log::error('Secure design upload failed', [
                 'error' => $e->getMessage(),
                 'file' => $file->getClientOriginalName()
             ]);
 
             return [
                 'success' => false,
-                'message' => 'Failed to upload design file'
+                'message' => 'Failed to upload design file securely'
             ];
         }
     }
