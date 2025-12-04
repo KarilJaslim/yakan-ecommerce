@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
-    // API Login
+    // ==========================
+    // API LOGIN
+    // ==========================
     public function login(Request $request)
     {
         $request->validate([
@@ -18,7 +20,7 @@ class LoginController extends Controller
         ]);
 
         try {
-            // Attempt login
+            // Try authenticating user
             if (!Auth::attempt($request->only('email', 'password'))) {
                 return response()->json([
                     'message' => 'Invalid email or password'
@@ -28,38 +30,48 @@ class LoginController extends Controller
             $user = Auth::user();
 
             if (!$user) {
-                Log::error('Login failed: Auth::user() returned null', [
-                    'input' => $request->all()
+                Log::error("Auth::user() returned null", [
+                    "input" => $request->all()
                 ]);
+
                 return response()->json([
                     'message' => 'User not found'
                 ], 500);
             }
 
-            // Check if email is verified
+            // Check verified email
             if (!$user->hasVerifiedEmail()) {
                 return response()->json([
                     'message' => 'Please verify your email before logging in'
                 ], 403);
             }
 
-            // Create token (Sanctum)
+            // Sanctum Token
             $token = $user->createToken('auth_token')->plainTextToken;
 
             if (!$token) {
-                Log::error('Login failed: createToken returned null', [
-                    'user' => $user
+                Log::error("Token creation failed", [
+                    "user" => $user
                 ]);
+
                 return response()->json([
                     'message' => 'Token generation failed'
                 ], 500);
             }
 
+            // ==========================
+            // VERY IMPORTANT:
+            // React Native EXPECTS:
+            // response.data.data.token
+            // response.data.data.user
+            // ==========================
+
             return response()->json([
                 'message' => 'Login successful',
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'user' => $user
+                'data' => [
+                    'user' => $user,
+                    'token' => $token,
+                ]
             ], 200);
 
         } catch (\Exception $e) {
@@ -74,12 +86,15 @@ class LoginController extends Controller
         }
     }
 
-    // API Logout
+    // ==========================
+    // API LOGOUT
+    // ==========================
     public function logout(Request $request)
     {
         $user = $request->user();
+
         if ($user) {
-            $user->tokens()->delete(); // Revoke all tokens
+            $user->tokens()->delete(); // logout: delete all tokens
         }
 
         return response()->json([

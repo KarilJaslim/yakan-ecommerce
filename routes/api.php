@@ -2,8 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-// Keep existing API routes below...
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Controllers\Api\ProductController;
@@ -38,16 +36,10 @@ RateLimiter::for('uploads', function (Request $request) {
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
 */
 
 // Public routes
-Route::prefix('v1')// ->middleware(['throttle:api']) // Temporarily disabled for debugging
-->group(function () {
+Route::prefix('v1')->group(function () {
     
     // Health check endpoint
     Route::get('/health', function () {
@@ -75,8 +67,6 @@ Route::prefix('v1')// ->middleware(['throttle:api']) // Temporarily disabled for
     Route::get('/cultural-heritage/recent', [CulturalHeritageController::class, 'recent']);
     
     // Custom Orders - Public endpoints
-    Route::get('/custom-orders', [CustomOrderController::class, 'index']); // Temporarily public for testing
-    Route::post('/custom-orders', [CustomOrderController::class, 'store']); // Temporarily public for testing
     Route::get('/custom-orders/catalog', [CustomOrderController::class, 'getCatalog']);
     Route::post('/custom-orders/pricing-estimate', [CustomOrderController::class, 'getPricingEstimate'])->middleware('throttle:uploads');
     Route::post('/custom-orders/upload-design', [CustomOrderController::class, 'uploadDesign'])->middleware('throttle:uploads');
@@ -137,10 +127,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('v1')->group(functio
     Route::delete('/cart/{id}', [CartController::class, 'remove']);
     Route::delete('/cart', [CartController::class, 'clear']);
     
-    // Orders
+    // ORDERS - FIXED: Properly placed in auth group
     Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders', [OrderController::class, 'create']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::post('/orders/check-inventory', [OrderController::class, 'checkInventory']);
     
     // Reviews
